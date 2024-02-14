@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("account")
-// 用于管辖和账号信息操作相关的API,你好？你好！
+// 用于管辖和账号信息操作相关的API
 public class AccountController {
 
     @Autowired
