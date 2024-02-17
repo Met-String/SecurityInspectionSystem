@@ -66,7 +66,7 @@ public class AccountController {
             return ResponseEntity.badRequest().body(new MessageResponse(-1, "错误: 请正确输入电话号！"));
         }
 
-        if (userService.authenticateUser(user)){
+        if (userService.authenticateUser(user)) {
             return ResponseEntity.ok(new MessageResponse(0, "登录成功!"));
         } else {
             return ResponseEntity.badRequest().body(new MessageResponse(-1, "电话号或密码错误！"));

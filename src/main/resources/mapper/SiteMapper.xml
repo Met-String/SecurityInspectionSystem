@@ -1,0 +1,31 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.STR.mapper.SiteMapper">
+    <insert id="addNewSite" parameterType="com.STR.entity.Site">
+        insert into site(site_id, organization_id, group_id, name, address, longitude, latitude, state, qrcode_serial_number, remark)
+        values(#{site_id}, #{organization_id}, #{group_id}, #{name}, #{address}, #{longitude}, #{latitude}, #{state}, #{qrcode_serial_number}, #{remark})
+    </insert>
+
+    <update id="editSiteById" parameterType="com.STR.entity.Site">
+        UPDATE site
+        SET organization_id = #{organization_id},
+            group_id = #{group_id},
+            name = #{name},
+            address = #{address},
+            longitude = #{longitude},
+            latitude = #{latitude},
+            state = #{state},
+            qrcode_serial_number = #{qrcode_serial_number}
+        WHERE site_id = #{site_id}
+    </update>
+    
+    <delete id="deleteSiteByID" parameterType="int">
+        delete from site where site_id = #{id}
+    </delete>
+
+    <select id="selectSitesByOrganizationID" parameterType="int" resultType="com.STR.entity.Site">
+        select * from site where organization_id = #{organization_id}
+    </select>
+</mapper>

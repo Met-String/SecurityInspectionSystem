@@ -17,12 +17,13 @@
         insert into user(user_name, user_phonenumber, user_password) values(#{userName},#{phoneNumber},#{password})
     </insert>
 </mapper>
-        <!--    <insert id="addArea" parameterType="Area">-->
-        <!--        insert into Area(areaName)values(#{areaName})-->
-        <!--    </insert>-->
-        <!--    <delete id="deleteArea" parameterType="Integer">-->
-        <!--        delete from Area where areaId=#{areaId}-->
-        <!--    </delete>-->
-        <!--    <select id="count" resultType="int">-->
-        <!--        select count(*) from Area where areaName=#{areaName}-->
-        <!--    </select>-->
+
+<!--            <insert id="addArea" parameterType="Area">-->
+<!--                insert into Area(areaName)values(#{areaName})-->
+<!--            </insert>-->
+<!--            <delete id="deleteArea" parameterType="Integer">-->
+<!--                delete from Area where areaId=#{areaId}-->
+<!--            </delete>-->
+<!--            <select id="count" resultType="int">-->
+<!--                select count(*) from Area where areaName=#{areaName}-->
+<!--            </select>-->
