@@ -1,0 +1,10 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.STR.mapper.TaskMapper">
+    <insert id="insertTask" parameterType="com.STR.entity.Task" useGeneratedKeys="true" keyProperty="task_id">
+        INSERT INTO task (name, user_id, description, start_time, end_time, status, organization_id, creator_id)
+        VALUES (#{name}, #{user_id}, #{description}, #{start_time}, #{end_time}, #{status}, #{organization_id}, #{creator_id})
+    </insert>
+</mapper>
