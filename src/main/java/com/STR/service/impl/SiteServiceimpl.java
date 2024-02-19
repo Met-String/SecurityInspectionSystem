@@ -19,20 +19,20 @@ public class SiteServiceimpl implements SiteService {
 
     // 添加新点位
     @Override
-    public int addNewSite(Site site) {
-        return siteMapper.addNewSite(site);
+    public void addNewSite(Site site) {
+        siteMapper.addNewSite(site);
     }
 
     // 编辑现有点位
     @Override
-    public int editSiteById(Site site) {
-       return siteMapper.editSiteById(site);
+    public void editSiteById(Site site) {
+        siteMapper.editSiteById(site);
     }
 
     // 删除点位
     @Override
-    public int deleteSiteByID(int id) {
-        return siteMapper.deleteSiteByID(id);
+    public void deleteSiteByID(int id) {
+        siteMapper.deleteSiteByID(id);
     }
 
     // 根据项目ID查找所有点位

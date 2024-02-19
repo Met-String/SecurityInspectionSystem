@@ -12,9 +12,4 @@ public class MessageResponse {
         this.code = code;
         this.message = message;
     }
-    //设置状态码
-    public MessageResponse Code(int code){
-        this.code = code;
-        return this;
-    }
 }
