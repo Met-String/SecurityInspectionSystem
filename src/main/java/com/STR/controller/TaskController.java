@@ -18,13 +18,11 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    // 创建新任务
+    // 创建新任务，包含一系列的TaskSite任务点
     @PostMapping("/add")
     public ResponseEntity<?> createTask(@RequestBody Task task){
-        System.out.println("咳咳");
         System.out.println(task.toString());
         taskService.addNewTask(task);
-        System.out.println("咳咳2");
         return ResponseEntity.ok().body(new  MessageResponse(0,"成功创建任务！"));
     }
 }

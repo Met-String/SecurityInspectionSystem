@@ -4,7 +4,7 @@
 
 <mapper namespace="com.STR.mapper.TaskMapper">
     <insert id="insertTask" parameterType="com.STR.entity.Task" useGeneratedKeys="true" keyProperty="task_id">
-        INSERT INTO task (name, user_id, description, start_time, end_time, status, organization_id, creator_id)
-        VALUES (#{name}, #{user_id}, #{description}, #{start_time}, #{end_time}, #{status}, #{organization_id}, #{creator_id})
+        INSERT INTO task (name, user_id, description, organization_id, creator_id)
+        VALUES (#{name}, #{user_id}, #{description}, #{organization_id}, #{creator_id})
     </insert>
 </mapper>
