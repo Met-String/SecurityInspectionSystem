@@ -84,10 +84,15 @@ public class TaskServiceImpl implements TaskService {
 
     // 完成一个点位实例的巡检任务，其中点位实例必需要有TaskSiteInstanceID、CheckTime属性
     @Override
-    public void finishTaskSiteInstance(TaskSiteInstance taskSiteInstance) {
+    public int finishTaskSiteInstance(TaskSiteInstance taskSiteInstance) {
+        TaskSiteInstance MySiteInstance = taskSiteInstanceMapper.findByID(taskSiteInstance.getTasksiteinstance_id());
+        if(MySiteInstance.getStatus() == 1){
+            return 1;
+        }
         NormalInspection normalInspection = taskSiteInstance.getNormalInspection();
         normalInspection.setTasksiteinstance_id(taskSiteInstance.getTasksiteinstance_id());
         taskSiteInstanceMapper.updateTaskSiteInstance(taskSiteInstance);
         normalInspectionMapper.insertNormalInspection(normalInspection);
+        return 0;
     }
 }

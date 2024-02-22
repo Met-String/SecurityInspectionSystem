@@ -19,5 +19,5 @@ public interface TaskService {
     List<TaskSiteInstance> findHistoryOfSite(int site_id);
 
     // 完成一个点位实例的巡检任务
-    void finishTaskSiteInstance(TaskSiteInstance taskSiteInstance);
+    int finishTaskSiteInstance(TaskSiteInstance taskSiteInstance);
 }

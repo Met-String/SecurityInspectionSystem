@@ -12,5 +12,7 @@ public interface TaskSiteInstanceMapper {
 
     List<TaskSiteInstance> findTaskSiteInstanceBySiteID(int site_id);
 
+    TaskSiteInstance findByID(int tasksiteinstance_id);
+
     int updateTaskSiteInstance(TaskSiteInstance taskSiteInstance);
 }

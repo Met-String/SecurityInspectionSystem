@@ -22,4 +22,8 @@
     <select id="findTaskSiteInstanceBySiteID" parameterType="int" resultType="com.STR.entity.TaskSiteInstance">
         select * from tasksiteinstance where site_id = #{site_id}
     </select>
+
+    <select id="findByID" parameterType="int" resultType="com.STR.entity.TaskSiteInstance">
+        select * from tasksiteinstance where tasksiteinstance_id = #{tasksiteinstance_id}
+    </select>
 </mapper>

@@ -23,7 +23,9 @@ public class InspectController {
     //其中NormalInspection中必须包含description、anomaly、imageUrl三项填写
     @PostMapping("/siteInstance/finish")
     ResponseEntity<?> siteInstanceFinish(@RequestBody TaskSiteInstance taskSiteInstance){
-        taskService.finishTaskSiteInstance(taskSiteInstance);
+        if(taskService.finishTaskSiteInstance(taskSiteInstance) == 1){
+            return ResponseEntity.ok().body(new MessageResponse(-1,"请勿重复提交任务！"));
+        }
         return ResponseEntity.ok().body(new MessageResponse(0,"点位巡检任务完成！"));
     }
 }
