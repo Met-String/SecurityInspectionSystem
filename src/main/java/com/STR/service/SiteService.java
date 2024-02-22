@@ -1,6 +1,7 @@
 package com.STR.service;
 
 import com.STR.entity.Site;
+import com.STR.entity.TaskSiteInstance;
 
 import java.util.List;
 
@@ -14,4 +15,6 @@ public interface SiteService {
 
     // 根据项目ID获取所有点位
     List<Site> selectSitesByOrganizationID(int organization_id);
+
+
 }

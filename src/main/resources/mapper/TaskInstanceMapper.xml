@@ -7,4 +7,18 @@
         INSERT INTO taskinstance (task_id, start_time, end_time, user_id, status)
         VALUES (#{task_id}, #{start_time}, #{end_time}, #{user_id}, #{status})
     </insert>
+
+
+    <select id="findTaskInstance" parameterType="map" resultType="com.STR.entity.TaskInstance">
+        SELECT * FROM taskinstance
+        <where>
+            <if test="timestamp != null">
+                WHERE DATE(start_time) = DATE(#{timestamp})
+            </if>
+            <if test="user_id != null">
+                AND user_id = #{user_id}
+            </if>
+            <!-- 添加更多的<if>条件来检查其他可能的参数 -->
+        </where>
+    </select>
 </mapper>

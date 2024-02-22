@@ -4,7 +4,22 @@
 
 <mapper namespace="com.STR.mapper.TaskSiteInstanceMapper">
     <insert id="insertTaskSiteInstance" parameterType="com.STR.entity.TaskSiteInstance" useGeneratedKeys="true" keyProperty="tasksiteinstance_id">
-        INSERT INTO tasksiteinstance (taskinstance_id, site_id, status, check_time)
-        VALUES (#{taskinstance_id}, #{site_id}, #{status}, #{check_time})
+        INSERT INTO tasksiteinstance (taskinstance_id, site_id, status, check_time, user_id)
+        VALUES (#{taskinstance_id}, #{site_id}, #{status}, #{check_time}, #{user_id})
     </insert>
+
+    <update id="updateTaskSiteInstance" parameterType="com.STR.entity.TaskSiteInstance">
+        UPDATE tasksiteinstance
+        SET check_time = #{check_time},
+            status = 1
+        WHERE tasksiteinstance_id = #{tasksiteinstance_id}
+    </update>
+
+    <select id="findTaskSiteInstanceByTaskInstanceID" parameterType="int" resultType="com.STR.entity.TaskSiteInstance">
+        select * from tasksiteinstance where taskinstance_id = #{taskinstance_id}
+    </select>
+
+    <select id="findTaskSiteInstanceBySiteID" parameterType="int" resultType="com.STR.entity.TaskSiteInstance">
+        select * from tasksiteinstance where site_id = #{site_id}
+    </select>
 </mapper>

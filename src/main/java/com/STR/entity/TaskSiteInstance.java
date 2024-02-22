@@ -17,6 +17,7 @@ public class TaskSiteInstance {
     int site_id;
     int status;
     LocalDateTime check_time;
-    // 数据库中不存在这一项，需要通过taskinstance_id到taskinstance表中进行查询。
     int user_id;
+    // 数据库中不存在这一项，但是是每次点位巡查时必须的常规检查
+    NormalInspection normalInspection;
 }

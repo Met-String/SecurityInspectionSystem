@@ -1,8 +1,10 @@
 package com.STR.controller;
 
 import com.STR.entity.MessageResponse;
+import com.STR.entity.MessageResponseBody;
 import com.STR.entity.Site;
 import com.STR.service.SiteService;
+import com.STR.service.TaskService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +14,11 @@ import org.springframework.web.bind.annotation.*;
 // 用于管辖点位相关设置的API
 public class SitesController {
     private final SiteService siteService;
+    private final TaskService taskService;
 
-    public SitesController(SiteService siteService) {
+    public SitesController(SiteService siteService, TaskService taskService) {
         this.siteService = siteService;
+        this.taskService = taskService;
     }
 
     // 添加新点位
@@ -45,4 +49,12 @@ public class SitesController {
         siteService.selectSitesByOrganizationID(organization_id);
         return ResponseEntity.ok().body(siteService.selectSitesByOrganizationID(organization_id));
     }
+
+    // 查找一个点位的所有历史巡检记录，也许是
+    @GetMapping("/history")
+    @ResponseBody
+    public ResponseEntity<?> findSiteInspectHistory(@RequestParam("site_id") int site_id){
+        return ResponseEntity.ok().body(new MessageResponseBody(0,"获取巡查历史成功！",taskService.findHistoryOfSite(site_id)));
+    }
+
 }

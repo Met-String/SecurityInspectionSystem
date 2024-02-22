@@ -20,5 +20,4 @@ public class Site {
     int state;
     String qrcode_serial_number;
     String remark;
-
 }

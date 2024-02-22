@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -24,5 +25,7 @@ public class TaskInstance {
      * 因此每一个TaskInstance都会有自己独特的TaskSiteInstance，也就是独特的点位列表
      * 因此这里这一项属性即为点位列表。而具体如何生成每个TaskInstance独特的点位列表，还需要后续算法完成。
      */
-    Set<Integer> sites;
+    List<Integer> sites;
+    /* 下面这一项在数据库中更不存在了，根据设想的逻辑，当申请查询taskInstance时，是会连带返回一系列的TaskSiteInstance的*/
+    List<TaskSiteInstance> taskSiteInstances;
 }
