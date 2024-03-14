@@ -24,8 +24,10 @@ public class SitesController {
     // 添加新点位
     @PostMapping("/add")
     public ResponseEntity<?> addNewSite(@RequestBody Site site){
-        siteService.addNewSite(site);
-        return ResponseEntity.ok().body(new MessageResponse(0,"添加点位成功"));
+        if (siteService.addNewSite(site))
+            return ResponseEntity.ok().body(new MessageResponse(0,"添加点位成功！"));
+        else
+            return ResponseEntity.ok().body(new MessageResponse(-1,"由于某些原因,点位添加失败！"));
     }
 
     // 编辑点位

@@ -59,12 +59,17 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
-    // 根据用户、时间戳找到巡检任务实例，可用于一个用户查看自己今天有什么任务
+    // 根据用户、时间戳找到巡检任务实例，可用于一个用户查看自己今天有什么任务，也可用于查看一个用户的过往巡检历史
     @Override
     public List<TaskInstance> findTaskInstance(Map<String, Object> map) {
         List<TaskInstance> taskInstances = taskInstanceMapper.findTaskInstance(map);
+        // 为每个Task实例插入巡检点位实例
         for (TaskInstance taskInstance : taskInstances){
             List<TaskSiteInstance> taskSiteInstances = taskSiteInstanceMapper.findTaskSiteInstanceByTaskInstanceID(taskInstance.getTaskinstance_id());
+            // 补全每个巡检点位实例的NormalInspection记录
+            for (TaskSiteInstance taskSiteInstance : taskSiteInstances){
+                taskSiteInstance.setNormalInspection(normalInspectionMapper.findNormalInspectionByTaskSiteInstanceID(taskSiteInstance.getTasksiteinstance_id())) ;
+            }
             taskInstance.setTaskSiteInstances(taskSiteInstances);
         }
         return taskInstances;

@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface SiteService {
     // 添加新点位
-    void addNewSite(Site site);
+    Boolean addNewSite(Site site);
     // 编辑点位
     void editSiteById(Site site);
     // 删除点位

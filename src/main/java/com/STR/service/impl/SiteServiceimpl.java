@@ -24,8 +24,12 @@ public class SiteServiceimpl implements SiteService {
 
     // 添加新点位
     @Override
-    public void addNewSite(Site site) {
-        siteMapper.addNewSite(site);
+    public Boolean addNewSite(Site site) {
+        if (siteMapper.addNewSite(site) == 1){
+            return true;
+        }else {
+            return false;
+        }
     }
 
     // 编辑现有点位
