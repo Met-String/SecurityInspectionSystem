@@ -11,10 +11,8 @@ public interface SiteService {
     // 编辑点位
     void editSiteById(Site site);
     // 删除点位
-    void deleteSiteByID(int site);
+    void deleteSitesByID(List<Integer> sitesIdList);
 
     // 根据项目ID获取所有点位
     List<Site> selectSitesByOrganizationID(int organization_id);
-
-
 }

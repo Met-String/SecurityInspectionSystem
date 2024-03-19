@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -18,6 +20,7 @@ public class Site {
     double longitude;
     double latitude;
     int state;
+    List<Integer> frequency;
     String qrcode_serial_number;
     String remark;
 }

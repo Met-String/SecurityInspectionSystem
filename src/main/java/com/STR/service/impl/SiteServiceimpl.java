@@ -38,10 +38,12 @@ public class SiteServiceimpl implements SiteService {
         siteMapper.editSiteById(site);
     }
 
-    // 删除点位
+    // 删除ID列表中的所有点位
     @Override
-    public void deleteSiteByID(int id) {
-        siteMapper.deleteSiteByID(id);
+    public void deleteSitesByID(List<Integer> sitesIdList) {
+        for(int site_id : sitesIdList){
+            siteMapper.deleteSiteByID(site_id);
+        }
     }
 
     // 根据项目ID查找所有点位

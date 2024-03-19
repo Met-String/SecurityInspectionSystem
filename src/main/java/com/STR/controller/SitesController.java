@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("sites")
 // 用于管辖点位相关设置的API
@@ -39,9 +41,9 @@ public class SitesController {
 
     //删除点位
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteSite(@RequestParam("id") int id){
-        siteService.deleteSiteByID(id);
-        return ResponseEntity.ok().body(new MessageResponse(0,"删除成功"));
+    public ResponseEntity<?> deleteSite(@RequestBody List<Integer> sitesIdList){
+        siteService.deleteSitesByID(sitesIdList);
+        return ResponseEntity.ok().body(new MessageResponse(0,"删除成功！"));
     }
 
     // 根据项目ID查找所有点位（这个或许只是测试，实际产品中应该随着项目各种数据一起被返回了）
