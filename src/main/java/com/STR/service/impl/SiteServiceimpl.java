@@ -1,11 +1,12 @@
 package com.STR.service.impl;
 
 import com.STR.entity.Site;
-import com.STR.entity.TaskSiteInstance;
+import com.STR.entity.User;
 import com.STR.mapper.SiteMapper;
 import com.STR.mapper.TaskMapper;
 import com.STR.mapper.TaskSiteInstanceMapper;
 import com.STR.service.SiteService;
+import com.STR.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +16,12 @@ import java.util.List;
 public class SiteServiceimpl implements SiteService {
     private final SiteMapper siteMapper;
     private final TaskSiteInstanceMapper taskSiteInstanceMapper;
-
+    private final UserService userService;
     @Autowired
-    public SiteServiceimpl(SiteMapper siteMapper, TaskMapper taskMapper, TaskSiteInstanceMapper taskSiteInstanceMapper) {
+    public SiteServiceimpl(SiteMapper siteMapper, TaskMapper taskMapper, TaskSiteInstanceMapper taskSiteInstanceMapper, UserService userService) {
         this.siteMapper = siteMapper;
         this.taskSiteInstanceMapper = taskSiteInstanceMapper;
+        this.userService = userService;
     }
 
     // 添加新点位
@@ -49,7 +51,16 @@ public class SiteServiceimpl implements SiteService {
     // 根据项目ID查找所有点位
     @Override
     public List<Site> selectSitesByOrganizationID(int organization_id) {
-        return siteMapper.selectSitesByOrganizationID(organization_id);
+        List<Site> result= siteMapper.selectSitesByOrganizationID(organization_id);
+        for(Site site: result){
+            User user = userService.findUserBySiteID(site.getSite_id());
+            //一个点位有可能暂时没有负责人
+            if(user != null) {
+                site.setUser_id(user.getUser_id());
+                site.setUser_name(user.getUserName());
+            }
+        }
+        return result;
     }
 
 

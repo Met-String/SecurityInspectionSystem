@@ -13,7 +13,15 @@
         select * from user where user_phonenumber = #{phoneNumber}
     </select>
 
-    <insert id="addNewUser" parameterType="com.STR.entity.User">
+    <select id="findUserBySiteID" resultMap="UserResultMap">
+        SELECT u.*
+        FROM tasksite ts
+        JOIN task t ON ts.task_id = t.task_id
+        JOIN user u ON t.user_id = u.user_id
+        WHERE ts.site_id = #{site_id}
+    </select>
+
+    <insert id="addNewUser" parameterType="com.STR.entity.User" useGeneratedKeys="true" keyProperty="user_id">
         insert into user(user_name, user_phonenumber, user_password) values(#{userName},#{phoneNumber},#{password})
     </insert>
 </mapper>

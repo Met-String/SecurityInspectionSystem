@@ -6,7 +6,9 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface UserMapper {
     User findUserByPhoneNumber(String phoneNumber);
+    User findUserBySiteID(int site_id);
     int addNewUser(User user);
+
 }
 //    List<Area> findAllArea(Area area);
 //    int deleteArea(Integer areaId);

@@ -8,8 +8,8 @@
     </resultMap>
 
     <insert id="addNewSite" parameterType="com.STR.entity.Site">
-        insert into site(site_id, organization_id, group_id, name, address, longitude, latitude, state, frequency, qrcode_serial_number, remark)
-        values(#{site_id}, #{organization_id}, #{group_id}, #{name}, #{address}, #{longitude}, #{latitude}, #{state}, #{frequency, typeHandler=com.STR.mapper.typeHandler.JsonFrequencyTypeHandler}, #{qrcode_serial_number}, #{remark})
+        insert into site(site_id, organization_id, group_id, name, address, longitude, latitude, state, usability, frequency, qrcode_serial_number, remark)
+        values(#{site_id}, #{organization_id}, #{group_id}, #{name}, #{address}, #{longitude}, #{latitude}, #{state}, #{usability}, #{frequency, typeHandler=com.STR.mapper.typeHandler.JsonFrequencyTypeHandler}, #{qrcode_serial_number}, #{remark})
     </insert>
 
     <update id="editSiteById" parameterType="com.STR.entity.Site">
@@ -21,6 +21,8 @@
             longitude = #{longitude},
             latitude = #{latitude},
             state = #{state},
+            usability = #{usability},
+            remark = #{remark},
             frequency = #{frequency, typeHandler=com.STR.mapper.typeHandler.JsonFrequencyTypeHandler},
             qrcode_serial_number = #{qrcode_serial_number}
         WHERE site_id = #{site_id}

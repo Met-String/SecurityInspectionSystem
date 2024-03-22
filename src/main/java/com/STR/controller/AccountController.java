@@ -39,7 +39,7 @@ public class AccountController {
         }
 
         // 创建新账户
-        User newUser = new User(user.getUserName(), user.getPhoneNumber(), encoder.encode(user.getPassword()));
+        User newUser = new User(-1 ,user.getUserName(), user.getPhoneNumber(), encoder.encode(user.getPassword()));
         if (userService.save(newUser) == 1) {
             return ResponseEntity.ok(new MessageResponse(0, "注册成功!"));
         } else {

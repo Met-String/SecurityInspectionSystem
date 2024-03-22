@@ -15,4 +15,6 @@ public interface UserService {
     // 验证用户是否合法
     Boolean authenticateUser(User user);
 
+    // 根据点位ID查找所负责的用户的基本信息
+    User findUserBySiteID(int site_id);
 }

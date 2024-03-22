@@ -65,4 +65,10 @@ public class UserServiceImpl implements UserService {
             return false;
         }
     }
+
+    // 根据点位ID查找所负责的用户的基本信息
+    @Override
+    public User findUserBySiteID(int site_id) {
+        return userMapper.findUserBySiteID(site_id);
+    }
 }
