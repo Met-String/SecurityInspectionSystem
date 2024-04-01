@@ -3,9 +3,10 @@ package com.STR.service.impl;
 import com.STR.entity.*;
 import com.STR.mapper.*;
 import com.STR.service.TaskService;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,87 +18,71 @@ public class TaskServiceImpl implements TaskService {
     private final TaskInstanceMapper taskInstanceMapper;
     private final TaskSiteInstanceMapper taskSiteInstanceMapper;
     private final NormalInspectionMapper normalInspectionMapper;
-    public TaskServiceImpl(TaskMapper taskMapper, TaskSiteMapper taskSiteMapper, TaskInstanceMapper taskInstanceMapper, TaskSiteInstanceMapper taskSiteInstanceMapper, NormalInspectionMapper normalInspectionMapper, NormalInspectionMapper normalInspectionMapper1) {
+    private final StringRedisTemplate redisTemplate;
+    public TaskServiceImpl(TaskMapper taskMapper, TaskSiteMapper taskSiteMapper, TaskInstanceMapper taskInstanceMapper, TaskSiteInstanceMapper taskSiteInstanceMapper, NormalInspectionMapper normalInspectionMapper, NormalInspectionMapper normalInspectionMapper1, StringRedisTemplate redisTemplate) {
         this.taskMapper = taskMapper;
         this.taskSiteMapper = taskSiteMapper;
         this.taskInstanceMapper = taskInstanceMapper;
         this.taskSiteInstanceMapper = taskSiteInstanceMapper;
         this.normalInspectionMapper = normalInspectionMapper;
+        this.redisTemplate = redisTemplate;
     }
-    // 添加新任务，以及一系列的任务点位，以及一系列单一的TaskInstance，以及一系列TaskSiteInstance
+
+    // 这里只添加新任务+点位池 后续的TaskInstance生成交给DailyTaskManager模块完成
     @Override
     public void addNewTask(Task task) {
         taskMapper.insertTask(task);
         int taskID = task.getTask_id();
-        int userID = task.getUser_id();
         // 插入一系列TaskSite
-        for (Integer siteID : task.getSites()){
+        for (int siteID : task.getSites()){
             taskSiteMapper.insertTaskSite(TaskSite.builder()
                     .task_id(taskID)
                     .site_id(siteID)
                     .build());
         }
-        // 根据日期插入一系列TaskInstance
-        for(LocalDateTime localDateTime : task.getDateTimeSet()){
-            TaskInstance taskInstance = TaskInstance.builder()
-                    .start_time(localDateTime)
-                    .task_id(taskID)
-                    .user_id(userID)
-                    .build();
-            taskInstanceMapper.insertTaskInstance(taskInstance);
-            int taskInstanceID = taskInstance.getTaskinstance_id();
-
-            // 同时，每个TaskInstance又要对应创建一系列TaskSiteInstance
-            for (int site_id : task.getSites()){
-                TaskSiteInstance taskSiteInstance = TaskSiteInstance.builder()
-                        .taskinstance_id(taskInstanceID)
-                        .site_id(site_id)
-                        .user_id(userID)
-                        .build();
-                taskSiteInstanceMapper.insertTaskSiteInstance(taskSiteInstance);
-            }
-        }
     }
 
-    // 根据用户、时间戳找到巡检任务实例，可用于一个用户查看自己今天有什么任务，也可用于查看一个用户的过往巡检历史
     @Override
-    public List<TaskInstance> findTaskInstance(Map<String, Object> map) {
-        List<TaskInstance> taskInstances = taskInstanceMapper.findTaskInstance(map);
+    public List<Task> findByCondition(Map map) {
+        return taskMapper.selectByCondition(map);
+    }
+    // 根据条件找到任务Task
+
+
+    // 根据条件找到巡检任务实例TaskInstance 用于:用户查看自己今天有什么任务
+    @Override
+    public List<TaskInstance> findInstanceByCondition(Map<String, Object> map) {
+        List<TaskInstance> taskInstances = taskInstanceMapper.findByCondition(map);
         // 为每个Task实例插入巡检点位实例
         for (TaskInstance taskInstance : taskInstances){
-            List<TaskSiteInstance> taskSiteInstances = taskSiteInstanceMapper.findTaskSiteInstanceByTaskInstanceID(taskInstance.getTaskinstance_id());
-            // 补全每个巡检点位实例的NormalInspection记录
+            Map<String,Object> map1 = new HashMap<>();
+            map1.put("taskinstance_id",taskInstance.getTaskinstance_id());
+            List<TaskSiteInstance> taskSiteInstances = taskSiteInstanceMapper.findByCondition(map1);
+            // 补全每个巡检点位实例的NormalInspection记录(可能没有)
             for (TaskSiteInstance taskSiteInstance : taskSiteInstances){
-                taskSiteInstance.setNormalInspection(normalInspectionMapper.findNormalInspectionByTaskSiteInstanceID(taskSiteInstance.getTasksiteinstance_id())) ;
+                taskSiteInstance.setNormalInspection(normalInspectionMapper.findByTaskSiteInstanceID(taskSiteInstance.getTasksiteinstance_id())) ;
             }
             taskInstance.setTaskSiteInstances(taskSiteInstances);
         }
         return taskInstances;
     }
 
-    // 查找一个点位的巡检历史
-    @Override
-    public List<TaskSiteInstance> findHistoryOfSite(int site_id) {
-        List<TaskSiteInstance> taskSiteInstances = taskSiteInstanceMapper.findTaskSiteInstanceBySiteID(site_id);
-        // 分别补全每个巡检点位实例的NormalInspection记录
-        for (TaskSiteInstance taskSiteInstance : taskSiteInstances){
-            //补全NormalInspection属性
-            taskSiteInstance.setNormalInspection(normalInspectionMapper.findNormalInspectionByTaskSiteInstanceID(taskSiteInstance.getTasksiteinstance_id())) ;
-        }
-        return taskSiteInstances;
-    }
-
     // 完成一个点位实例的巡检任务，其中点位实例必需要有TaskSiteInstanceID、CheckTime属性
+    // 【缺失工单相关逻辑】
     @Override
     public int finishTaskSiteInstance(TaskSiteInstance taskSiteInstance) {
         TaskSiteInstance MySiteInstance = taskSiteInstanceMapper.findByID(taskSiteInstance.getTasksiteinstance_id());
-        if(MySiteInstance.getStatus() == 1){
+        // 不能重复完成
+        if(MySiteInstance.getState() != 0){
             return 1;
         }
-        NormalInspection normalInspection = taskSiteInstance.getNormalInspection();
-        normalInspection.setTasksiteinstance_id(taskSiteInstance.getTasksiteinstance_id());
-        taskSiteInstanceMapper.updateTaskSiteInstance(taskSiteInstance);
-        normalInspectionMapper.insertNormalInspection(normalInspection);
+        // 插入NormalInspection 有可能为空(跳检 工单等)
+        if(taskSiteInstance.getNormalInspection() != null){
+            normalInspectionMapper.insertNormalInspection(taskSiteInstance.getNormalInspection());
+        }
+        taskSiteInstanceMapper.update(taskSiteInstance);
+        // 除去Redis中对应Taskinstance的相关缓存
+        redisTemplate.opsForSet().remove(String.valueOf(taskSiteInstance.getTaskinstance_id()),String.valueOf(taskSiteInstance.getTasksiteinstance_id()));
         return 0;
     }
 }

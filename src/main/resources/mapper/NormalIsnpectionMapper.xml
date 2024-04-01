@@ -5,11 +5,11 @@
 <mapper namespace="com.STR.mapper.NormalInspectionMapper">
 
     <insert id="insertNormalInspection" parameterType="com.STR.entity.NormalInspection" useGeneratedKeys="true" keyProperty="normalinspection_id">
-        INSERT INTO normalinspection (tasksiteinstance_id, description, anomaly, image_url)
-        VALUES (#{tasksiteinstance_id}, #{description}, #{anomaly}, #{image_url})
+        INSERT INTO normalinspection (tasksiteinstance_id, description, image_url)
+        VALUES (#{tasksiteinstance_id}, #{description}, #{image_url})
     </insert>
 
-    <select id="findNormalInspectionByTaskSiteInstanceID" parameterType="int" resultType="com.STR.entity.NormalInspection">
+    <select id="findByTaskSiteInstanceID" parameterType="int" resultType="com.STR.entity.NormalInspection">
         SELECT * FROM normalinspection
         WHERE tasksiteinstance_id = #{tasksiteinstance_id}
     </select>

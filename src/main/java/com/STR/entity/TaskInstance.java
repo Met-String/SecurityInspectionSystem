@@ -19,13 +19,13 @@ public class TaskInstance {
     LocalDateTime start_time;
     LocalDateTime end_time;
     int user_id;
-    // 0为未完成 1为完成
-    int status;
-    /* 下面这一项在数据库中不存在，由于根据设想的逻辑，每一个Task会生成一系列不一的TaskInstance，而不是一系列完全相同的TaskInstance
-     * 因此每一个TaskInstance都会有自己独特的TaskSiteInstance，也就是独特的点位列表
-     * 因此这里这一项属性即为点位列表。而具体如何生成每个TaskInstance独特的点位列表，还需要后续算法完成。
-     */
-    List<Integer> sites;
-    /* 下面这一项在数据库中更不存在了，根据设想的逻辑，当申请查询taskInstance时，是会连带返回一系列的TaskSiteInstance的*/
+    // 任务完成情况 0 为待完成 1 为完成 2 为已超时
+    int state;
+
+    // 下面这一项在数据库中不存在 为了便于任务查看、发放为必须
+    String task_name;
+    // 下面这一项在数据库中不存在 为了便于任务查看、发放为必须
+    String task_description;
+    // 下面这一项在数据库中不存在 为了便于任务查看、发放为必须 TaskInstance和其下属TaskSiteInstance一般绑定出现
     List<TaskSiteInstance> taskSiteInstances;
 }

@@ -4,12 +4,17 @@
 
 <mapper namespace="com.STR.mapper.TaskInstanceMapper">
     <insert id="insertTaskInstance" parameterType="com.STR.entity.TaskInstance" useGeneratedKeys="true" keyProperty="taskinstance_id">
-        INSERT INTO taskinstance (task_id, start_time, end_time, user_id, status)
-        VALUES (#{task_id}, #{start_time}, #{end_time}, #{user_id}, #{status})
+        INSERT INTO taskinstance (task_id, start_time, user_id, state)
+        VALUES (#{task_id}, #{start_time}, #{user_id}, #{state})
     </insert>
-
-
-    <select id="findTaskInstance" parameterType="map" resultType="com.STR.entity.TaskInstance">
+    <update id="update" parameterType="com.STR.entity.TaskInstance">
+        UPDATE taskinstance
+        SET start_time = #{start_time},
+            end_time = #{end_time},
+            state = #{state}
+        WHERE taskinstance_id = #{taskinstance_id}
+    </update>
+    <select id="findByCondition" parameterType="map" resultType="com.STR.entity.TaskInstance">
         SELECT * FROM taskinstance
         <where>
             <if test="timestamp != null">
@@ -17,6 +22,9 @@
             </if>
             <if test="user_id != null">
                 AND user_id = #{user_id}
+            </if>
+            <if test="taskinstance_id != null">
+                AND taskinstance_id = #{taskinstance_id}
             </if>
             <!-- 添加更多的<if>条件来检查其他可能的参数 -->
         </where>

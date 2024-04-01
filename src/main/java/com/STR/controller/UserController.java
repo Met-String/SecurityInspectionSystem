@@ -2,7 +2,9 @@ package com.STR.controller;
 
 import com.STR.entity.MessageResponseBody;
 import com.STR.entity.TaskInstance;
+import com.STR.entity.User;
 import com.STR.service.TaskService;
+import com.STR.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,16 +20,25 @@ import java.util.Map;
 @RequestMapping("/user")
 public class UserController {
     private final TaskService taskService;
+    private final UserService userService;
 
-    public UserController(TaskService taskService) {
+    public UserController(TaskService taskService, UserService userService) {
         this.taskService = taskService;
+        this.userService = userService;
     }
-
+    // 获取用户的巡检历史
     @GetMapping("history")
     public ResponseEntity<?> historyOfUser(@RequestParam("user_id") int user_id){
         Map<String,Object> map = new HashMap<>();
         map.put("user_id",user_id);
-        List<TaskInstance> taskInstances = taskService.findTaskInstance(map);
+        List<TaskInstance> taskInstances = taskService.findInstanceByCondition(map);
         return ResponseEntity.ok().body(new MessageResponseBody(0,"获取用户巡检历史成功！", taskInstances));
+    }
+
+    // 获取所有用户信息
+    @GetMapping("get/all")
+    public ResponseEntity<?> getAllUser(){
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok().body(new MessageResponseBody(0,"获取用户和列表成功！", users));
     }
 }

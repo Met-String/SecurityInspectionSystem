@@ -6,5 +6,5 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface NormalInspectionMapper {
     int insertNormalInspection(NormalInspection normalInspection);
-    NormalInspection findNormalInspectionByTaskSiteInstanceID(int taskSiteInstance_id);
+    NormalInspection findByTaskSiteInstanceID(int taskSiteInstance_id);
 }

@@ -4,7 +4,12 @@
 
 <mapper namespace="com.STR.mapper.TaskMapper">
     <insert id="insertTask" parameterType="com.STR.entity.Task" useGeneratedKeys="true" keyProperty="task_id">
-        INSERT INTO task (name, user_id, description, organization_id, creator_id)
-        VALUES (#{name}, #{user_id}, #{description}, #{organization_id}, #{creator_id})
+        INSERT INTO task (name, user_id, description, state)
+        VALUES (#{name}, #{user_id}, #{description}, #{state})
     </insert>
+    <select id="selectByCondition" parameterType="map" resultType="com.STR.entity.Task">
+        SELECT t.*, u.user_name
+        FROM task t
+        JOIN user u ON t.user_id = u.user_id
+    </select>
 </mapper>

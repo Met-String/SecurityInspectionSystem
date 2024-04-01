@@ -13,16 +13,14 @@ import java.util.Set;
 @NoArgsConstructor
 public class Task {
     int task_id;
-    // 创建任务必须
     String name;
-    // 创建任务必须
     int user_id;
     String description;
-    LocalDateTime create_time;
-    int organization_id;
-    int creator_id;
-    // 数据库中无，创建任务必须
+    // 任务是否为激活态 0未激活 1激活
+    int state;
+
+    // 数据库中无 便于前端展示
+    String user_name;
+    // 数据库中无 便于前端展示 创建任务
     Set<Integer> sites;
-    // 数据库中无，创建任务必须
-    Set<LocalDateTime> dateTimeSet;
 }

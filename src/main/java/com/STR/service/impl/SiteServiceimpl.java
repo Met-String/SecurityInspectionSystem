@@ -63,6 +63,8 @@ public class SiteServiceimpl implements SiteService {
         return result;
     }
 
-
-
+    @Override
+    public List<Site> selectByTaskID(int task_id) {
+        return siteMapper.selectByTaskID(task_id);
+    }
 }

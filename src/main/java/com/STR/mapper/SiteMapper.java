@@ -11,4 +11,8 @@ public interface SiteMapper {
     int editSiteById(Site site);
     int deleteSiteByID(int id);
     List<Site> selectSitesByOrganizationID(int organization_id);
+    List<Site> selectByTaskID(int task_id);
+    int updateTimes(Site site);
+
+
 }

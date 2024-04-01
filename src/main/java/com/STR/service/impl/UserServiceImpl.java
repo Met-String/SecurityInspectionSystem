@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -70,5 +72,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findUserBySiteID(int site_id) {
         return userMapper.findUserBySiteID(site_id);
+    }
+
+    // 查找所有用户
+    @Override
+    public List<User> getAllUsers() {
+        return userMapper.findAllUsers();
     }
 }

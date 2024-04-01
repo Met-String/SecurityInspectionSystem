@@ -14,4 +14,7 @@ public class User {
     String userName;
     String phoneNumber;
     String password;
+    String position;
+    String image_url;
+    String department;
 }

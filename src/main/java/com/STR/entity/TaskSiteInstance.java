@@ -15,9 +15,18 @@ public class TaskSiteInstance {
     int tasksiteinstance_id;
     int taskinstance_id;
     int site_id;
-    int status;
+    /*
+        0未开始 1完成无异常 2发生工单（发起一个新的工单）3更新工单（跟踪、更新一个工单的信息）
+        4跳检（由于不可抗力、无法到达等） 5漏检（当前时间超出规定巡检日期）
+    */
+    int state;
     LocalDateTime check_time;
     int user_id;
-    // 数据库中不存在这一项，但是是每次点位巡查时必须的常规检查
+
+    // 数据库中不存在这一项
+    String user_name;
+    // 数据库中不存在这一项
+    String site_name;
+    // 数据库中不存在这一项 便于数据处理
     NormalInspection normalInspection;
 }

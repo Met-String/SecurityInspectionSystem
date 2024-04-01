@@ -39,8 +39,9 @@ public class AccountController {
         }
 
         // 创建新账户
-        User newUser = new User(-1 ,user.getUserName(), user.getPhoneNumber(), encoder.encode(user.getPassword()));
-        if (userService.save(newUser) == 1) {
+        user.setPassword(encoder.encode(user.getPassword()));
+//        User newUser = new User(-1,user.getUserName(), user.getPhoneNumber(), encoder.encode(user.getPassword()));
+        if (userService.save(user) == 1) {
             return ResponseEntity.ok(new MessageResponse(0, "注册成功!"));
         } else {
             return ResponseEntity.badRequest().body(new MessageResponse(1, "由于服务器出现未知异常，新用户创建失败！"));

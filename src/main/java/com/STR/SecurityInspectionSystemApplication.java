@@ -7,7 +7,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 public class SecurityInspectionSystemApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(SecurityInspectionSystemApplication.class, args);
         String password = "123";
@@ -15,5 +14,4 @@ public class SecurityInspectionSystemApplication {
         String hashedPassword = bCryptPasswordEncoder.encode(password);
         System.out.println(hashedPassword);
     }
-
 }

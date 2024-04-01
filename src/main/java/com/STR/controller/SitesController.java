@@ -3,6 +3,7 @@ package com.STR.controller;
 import com.STR.entity.MessageResponse;
 import com.STR.entity.MessageResponseBody;
 import com.STR.entity.Site;
+import com.STR.service.HistoryService;
 import com.STR.service.SiteService;
 import com.STR.service.TaskService;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +18,12 @@ import java.util.List;
 public class SitesController {
     private final SiteService siteService;
     private final TaskService taskService;
+    private final HistoryService historyService;
 
-    public SitesController(SiteService siteService, TaskService taskService) {
+    public SitesController(SiteService siteService, TaskService taskService, HistoryService historyService) {
         this.siteService = siteService;
         this.taskService = taskService;
+        this.historyService = historyService;
     }
 
     // 添加新点位
@@ -58,7 +61,7 @@ public class SitesController {
     @GetMapping("/history")
     @ResponseBody
     public ResponseEntity<?> findSiteInspectHistory(@RequestParam("site_id") int site_id){
-        return ResponseEntity.ok().body(new MessageResponseBody(0,"获取巡查历史成功！",taskService.findHistoryOfSite(site_id)));
+        return ResponseEntity.ok().body(new MessageResponseBody(0,"获取巡查历史成功！",historyService.findHistoryOfSite(site_id)));
     }
 
 }

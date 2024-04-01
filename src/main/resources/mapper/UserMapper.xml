@@ -9,6 +9,12 @@
         <result property="phoneNumber" column="user_phonenumber"/>
         <result property="password" column="user_password"/>
     </resultMap>
+
+    <select id="findAllUsers" resultMap="UserResultMap" resultType="com.STR.entity.User">
+        SELECT user_id, user_name, user_phonenumber, position, image_url, department
+        FROM User
+    </select>
+
     <select id="findUserByPhoneNumber" resultMap="UserResultMap">
         select * from user where user_phonenumber = #{phoneNumber}
     </select>
@@ -25,13 +31,3 @@
         insert into user(user_name, user_phonenumber, user_password) values(#{userName},#{phoneNumber},#{password})
     </insert>
 </mapper>
-
-<!--            <insert id="addArea" parameterType="Area">-->
-<!--                insert into Area(areaName)values(#{areaName})-->
-<!--            </insert>-->
-<!--            <delete id="deleteArea" parameterType="Integer">-->
-<!--                delete from Area where areaId=#{areaId}-->
-<!--            </delete>-->
-<!--            <select id="count" resultType="int">-->
-<!--                select count(*) from Area where areaName=#{areaName}-->
-<!--            </select>-->

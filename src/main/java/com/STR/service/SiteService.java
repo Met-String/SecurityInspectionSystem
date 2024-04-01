@@ -15,4 +15,6 @@ public interface SiteService {
 
     // 根据项目ID获取所有点位
     List<Site> selectSitesByOrganizationID(int organization_id);
+
+    List<Site> selectByTaskID(int task_id);
 }
