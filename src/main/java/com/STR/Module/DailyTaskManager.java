@@ -44,6 +44,7 @@ public class DailyTaskManager {
     // 但是 这里并不负责NextCheckTime的计算 相关计算有单独的函数 并在每一次完成TaskSiteInstance时被调取
     public void executeTask(List<Task> tasks) {
         for(Task task : tasks){
+            // 如果任务未激活 那就算了
             if(task.getState() == 0) continue;
             // 获取该任务点位池 从中筛选出今日任务地点todaySites
             List<Site> sitePool = siteMapper.selectByTaskID(task.getTask_id());
@@ -163,7 +164,7 @@ public class DailyTaskManager {
         int pastTimes = taskSiteInstanceMapper.countTimesByInterval(interval);
         // 如果巡检次数不足 那么下一次巡检就是明天
         if(pastTimes < times) site.setNext_check_date(LocalDate.now().plusDays(1));
-        // 如果巡检次数充足 那么下一次巡检就是暂停interval-times天后的一天
+        // 如果巡检次数充足 那么下一次巡检就是暂停interval-times天后的一天 然而 假如interval-times为0 那么巡检员就永无天日了
         if(pastTimes >= times) site.setNext_check_date(LocalDate.now().plusDays(interval - times + 1));
         siteMapper.updateTimes(site);
     }

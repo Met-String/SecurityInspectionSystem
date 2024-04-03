@@ -71,7 +71,9 @@ public class TaskServiceImpl implements TaskService {
     // 【缺失工单相关逻辑】
     @Override
     public int finishTaskSiteInstance(TaskSiteInstance taskSiteInstance) {
-        TaskSiteInstance MySiteInstance = taskSiteInstanceMapper.findByID(taskSiteInstance.getTasksiteinstance_id());
+        Map<String,Object> map = new HashMap<>();
+        map.put("tasksiteinstance_id",taskSiteInstance.getTasksiteinstance_id());
+        TaskSiteInstance MySiteInstance = taskSiteInstanceMapper.findByCondition(map).get(0);
         // 不能重复完成
         if(MySiteInstance.getState() != 0){
             return 1;

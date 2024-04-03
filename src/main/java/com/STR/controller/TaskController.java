@@ -43,7 +43,7 @@ public class TaskController {
     public ResponseEntity<?> getTask(){
         Map<String, Object> map = new HashMap<>();
         List<Task> taskList = taskService.findByCondition(map);
-        return ResponseEntity.ok().body(new MessageResponseBody(0,"成功获取点位池！", taskList));
+        return ResponseEntity.ok().body(new MessageResponseBody(0,"成功获取所有任务！", taskList));
     }
 
 

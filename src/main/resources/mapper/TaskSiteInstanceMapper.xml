@@ -8,6 +8,7 @@
         VALUES (#{taskinstance_id}, #{site_id}, #{state}, #{user_id})
     </insert>
 
+    <!-- 对于一个点位巡检实例 只有CheckTime State是可能被更新的 -->
     <update id="update" parameterType="com.STR.entity.TaskSiteInstance">
         UPDATE tasksiteinstance
         SET check_time = #{check_time},
@@ -30,28 +31,17 @@
             <if test="site_id != null">
                 AND tsi.site_id = #{site_id}
             </if>
+            <if test="user_id != null">
+                AND tsi.user_id = #{user_id}
+            </if>
             <!-- 添加更多的<if>条件来检查其他可能的参数 -->
         </where>
     </select>
 
-    <select id="findByTaskInstanceID" parameterType="int" resultType="com.STR.entity.TaskSiteInstance">
-        select * from tasksiteinstance where taskinstance_id = #{taskinstance_id}
-    </select>
-
-    <select id="findBySiteID" parameterType="int" resultType="com.STR.entity.TaskSiteInstance">
-        select * from tasksiteinstance where site_id = #{site_id}
-    </select>
-
-    <select id="findByID" parameterType="int" resultType="com.STR.entity.TaskSiteInstance">
-        select * from tasksiteinstance where tasksiteinstance_id = #{tasksiteinstance_id}
-    </select>
-
-    <select id="findByUserID" parameterType="int" resultType="com.STR.entity.TaskSiteInstance">
-        select * from tasksiteinstance where user_id = #{user_id}
-    </select>
-
+    <!--  找到在过去的interval天内 有几个巡检天  -->
     <select id="countTimesByInterval" parameterType="map" resultType="int">
-        SELECT count(*) FROM tasksiteinstance
+        SELECT COUNT(DISTINCT taskinstance_id) FROM tasksiteinstance
         WHERE DATE(check_time) > DATE(NOW() - INTERVAL #{interval} DAY)
     </select>
+
 </mapper>

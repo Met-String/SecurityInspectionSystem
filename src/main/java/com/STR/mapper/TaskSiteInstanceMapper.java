@@ -12,14 +12,6 @@ public interface TaskSiteInstanceMapper {
 
     // 根据条件查找巡检记录
     List<TaskSiteInstance> findByCondition(Map<String,Object> map);
-    List<TaskSiteInstance> findByTaskInstanceID(int taskinstance_id);
-
-    List<TaskSiteInstance> findBySiteID(int site_id);
-
-    // 找到某个用户的巡检记录
-    List<TaskSiteInstance> findByUserID(int user_id);
-    TaskSiteInstance findByID(int tasksiteinstance_id);
-
     int update(TaskSiteInstance taskSiteInstance);
 
     int countTimesByInterval(int interval);
