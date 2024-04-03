@@ -13,6 +13,5 @@ public interface TaskSiteInstanceMapper {
     // 根据条件查找巡检记录
     List<TaskSiteInstance> findByCondition(Map<String,Object> map);
     int update(TaskSiteInstance taskSiteInstance);
-
     int countTimesByInterval(int interval);
 }

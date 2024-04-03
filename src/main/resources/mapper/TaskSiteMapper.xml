@@ -7,4 +7,10 @@
         INSERT INTO tasksite (task_id, site_id)
         VALUES (#{task_id}, #{site_id})
     </insert>
+
+    <!--  唯一的作用就是为补全Task对象而服务  -->
+    <select id="findSiteIDListByTaskID" parameterType="int" resultType="Integer">
+        SELECT site_id FROM tasksite
+        WHERE task_id = #{task_id}
+    </select>
 </mapper>

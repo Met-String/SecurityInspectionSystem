@@ -44,7 +44,11 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<Task> findByCondition(Map map) {
-        return taskMapper.selectByCondition(map);
+        List<Task> taskList = taskMapper.selectByCondition(map);
+        for (Task task : taskList){
+            task.setSites(taskSiteMapper.findSiteIDListByTaskID(task.getTask_id()));
+        }
+        return taskList;
     }
     // 根据条件找到任务Task
 
