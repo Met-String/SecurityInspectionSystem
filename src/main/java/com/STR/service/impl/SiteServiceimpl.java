@@ -10,7 +10,9 @@ import com.STR.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SiteServiceimpl implements SiteService {
@@ -48,23 +50,18 @@ public class SiteServiceimpl implements SiteService {
         }
     }
 
-    // 根据项目ID查找所有点位
+    // 查找所有点位
     @Override
-    public List<Site> selectSitesByOrganizationID(int organization_id) {
-        List<Site> result= siteMapper.selectSitesByOrganizationID(organization_id);
-        for(Site site: result){
-            User user = userService.findUserBySiteID(site.getSite_id());
-            //一个点位有可能暂时没有负责人
-            if(user != null) {
-                site.setUser_id(user.getUser_id());
-                site.setUser_name(user.getUserName());
-            }
-        }
-        return result;
+    public List<Site> findSitesByCondition(Map<String,Object> map) {
+        List<Site> siteList = siteMapper.selectByCondition(map);
+        return siteList;
     }
 
     @Override
     public List<Site> selectByTaskID(int task_id) {
-        return siteMapper.selectByTaskID(task_id);
+        Map<String,Object> map = new HashMap<>();
+        map.put("task_id",task_id);
+        List<Site> sitePool = siteMapper.selectByCondition(map);
+        return sitePool;
     }
 }

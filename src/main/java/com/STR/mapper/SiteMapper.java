@@ -4,14 +4,14 @@ import com.STR.entity.Site;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface SiteMapper {
     int addNewSite(Site site);
     int editSiteById(Site site);
     int deleteSiteByID(int id);
-    List<Site> selectSitesByOrganizationID(int organization_id);
-    List<Site> selectByTaskID(int task_id);
+    List<Site> selectByCondition(Map<String,Object> map);
     int updateTimes(Site site);
 
 

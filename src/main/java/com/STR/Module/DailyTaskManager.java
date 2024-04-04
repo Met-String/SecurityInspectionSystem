@@ -47,7 +47,9 @@ public class DailyTaskManager {
             // 如果任务未激活 那就算了
             if(task.getState() == 0) continue;
             // 获取该任务点位池 从中筛选出今日任务地点todaySites
-            List<Site> sitePool = siteMapper.selectByTaskID(task.getTask_id());
+            Map<String,Object> map = new HashMap<>();
+            map.put("task_id",task.getTask_id());
+            List<Site> sitePool = siteMapper.selectByCondition(map);
             List<Site> todaySites = new ArrayList<Site>();
             for (Site site : sitePool){
                 if(Objects.equals(site.getUsability(), "不可用")) continue;

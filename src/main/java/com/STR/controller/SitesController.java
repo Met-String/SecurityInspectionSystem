@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("sites")
@@ -42,19 +44,19 @@ public class SitesController {
         return ResponseEntity.ok().body(new MessageResponse(0,"编辑点位成功"));
     }
 
-    //删除点位
+    // 删除点位
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteSite(@RequestBody List<Integer> sitesIdList){
         siteService.deleteSitesByID(sitesIdList);
         return ResponseEntity.ok().body(new MessageResponse(0,"删除成功！"));
     }
 
-    // 根据项目ID查找所有点位（这个或许只是测试，实际产品中应该随着项目各种数据一起被返回了）
-    @GetMapping("/allSitesOfOrg")
+    // 条件查找点位
+    @GetMapping("/")
     @ResponseBody
-    public ResponseEntity<?> allSitesOfOrgID(@RequestParam("organization_id") int organization_id){
-        siteService.selectSitesByOrganizationID(organization_id);
-        return ResponseEntity.ok().body(siteService.selectSitesByOrganizationID(organization_id));
+    public ResponseEntity<?> getSites(){
+        Map<String,Object> map = new HashMap<>();
+        return ResponseEntity.ok().body(siteService.findSitesByCondition(map));
     }
 
     // 查找一个点位的所有历史巡检记录，也许是

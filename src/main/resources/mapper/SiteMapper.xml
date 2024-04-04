@@ -12,14 +12,13 @@
         values(#{site_id}, #{organization_id}, #{group_id}, #{name}, #{address}, #{longitude}, #{latitude}, #{state}, #{usability}, #{frequency, typeHandler=com.STR.mapper.typeHandler.JsonFrequencyTypeHandler}, #{qrcode_serial_number}, #{remark})
     </insert>
 
+    <!--  对经纬度的修改是不可想象的 还不如新建一个点位  -->
     <update id="editSiteById" parameterType="com.STR.entity.Site">
         UPDATE site
         SET organization_id = #{organization_id},
             group_id = #{group_id},
             name = #{name},
             address = #{address},
-            longitude = #{longitude},
-            latitude = #{latitude},
             state = #{state},
             usability = #{usability},
             remark = #{remark},
@@ -28,6 +27,7 @@
         WHERE site_id = #{site_id}
     </update>
 
+    <!--  时间系的修改会极为频繁 单独设一个入口  -->
     <update id="updateTimes" parameterType="com.STR.entity.Site">
         UPDATE site
         SET last_check_time = #{last_check_time},
@@ -39,17 +39,20 @@
         delete from site where site_id = #{id}
     </delete>
 
-    <select id="selectSitesByOrganizationID" parameterType="int" resultType="com.STR.entity.Site" resultMap="siteResultMap">
-        select * from site where organization_id = #{organization_id}
-    </select>
-
-    <!--  这种涉及到一些离谱查询条件的，就没办法用条件查询了  -->
-    <select id="selectByTaskID" parameterType="int" resultType="com.STR.entity.Site" resultMap="siteResultMap">
+    <!--  统一条件查询入口  -->
+    <select id="selectByCondition" parameterType="map" resultType="com.STR.entity.Site" resultMap="siteResultMap">
         SELECT s.*, u.user_id user_id, u.user_name user_name
         FROM site s
-        JOIN tasksite t ON s.site_id = t.site_id
-        JOIN task t2 on t.task_id = t2.task_id
-        JOIN user u on t2.user_id = u.user_id
-        WHERE t.task_id = #{task_id}
+                 JOIN tasksite t ON s.site_id = t.site_id
+                 JOIN task t2 on t.task_id = t2.task_id
+                 JOIN user u on t2.user_id = u.user_id
+        <where>
+            <if test="site_id != null">
+                s.site_id = #{site_id}
+            </if>
+            <if test="task_id != null">
+               AND t.task_id = #{task_id}
+            </if>
+        </where>
     </select>
 </mapper>

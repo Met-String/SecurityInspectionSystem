@@ -1,9 +1,8 @@
 package com.STR.service;
 
 import com.STR.entity.Site;
-import com.STR.entity.TaskSiteInstance;
-
 import java.util.List;
+import java.util.Map;
 
 public interface SiteService {
     // 添加新点位
@@ -14,7 +13,7 @@ public interface SiteService {
     void deleteSitesByID(List<Integer> sitesIdList);
 
     // 根据项目ID获取所有点位
-    List<Site> selectSitesByOrganizationID(int organization_id);
+    List<Site> findSitesByCondition(Map<String,Object> map);
 
     List<Site> selectByTaskID(int task_id);
 }

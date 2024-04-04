@@ -28,6 +28,7 @@ public class Site {
     String remark;
     LocalDateTime last_check_time;
     LocalDate next_check_date;
+
     // 在数据库Site表中不存在此字段，为了便利前端而设立。
     int user_id;
     // 在数据库Site表中不存在此字段，为了便利前端而设立。
