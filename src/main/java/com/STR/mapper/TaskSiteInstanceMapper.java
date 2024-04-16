@@ -14,4 +14,5 @@ public interface TaskSiteInstanceMapper {
     List<TaskSiteInstance> findByCondition(Map<String,Object> map);
     int update(TaskSiteInstance taskSiteInstance);
     int countTimesByInterval(int interval);
+    int deleteByTaskInstanceID(int taskinstance_id);
 }

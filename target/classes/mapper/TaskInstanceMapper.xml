@@ -9,27 +9,32 @@
     </insert>
     <update id="update" parameterType="com.STR.entity.TaskInstance">
         UPDATE taskinstance
-        SET start_time = #{start_time},
-            end_time = #{end_time},
+        SET end_time = #{end_time},
             state = #{state}
         WHERE taskinstance_id = #{taskinstance_id}
     </update>
     <select id="findByCondition" parameterType="map" resultType="com.STR.entity.TaskInstance">
-        SELECT * FROM taskinstance
+        SELECT ti.*, t.name task_name, t.description task_description
+        FROM taskinstance ti
+            JOIN task t on t.task_id = ti.task_id
         <where>
             <if test="timestamp != null">
-                DATE(start_time) = DATE(#{timestamp})
+                DATE(ti.start_time) = DATE(#{timestamp})
             </if>
             <if test="user_id != null">
-                AND user_id = #{user_id}
+                AND ti.user_id = #{user_id}
             </if>
             <if test="taskinstance_id != null">
-                AND taskinstance_id = #{taskinstance_id}
+                AND ti.taskinstance_id = #{taskinstance_id}
             </if>
             <if test="task_id != null">
-                AND task_id = #{task_id}
+                AND ti.task_id = #{task_id}
             </if>
             <!-- 添加更多的<if>条件来检查其他可能的参数 -->
         </where>
     </select>
+    
+    <delete id="deleteByID" parameterType="int">
+        DELETE FROM taskinstance WHERE taskinstance_id = #{taskinstance_id}
+    </delete>
 </mapper>

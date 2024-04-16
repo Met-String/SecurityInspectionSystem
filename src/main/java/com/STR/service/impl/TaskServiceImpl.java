@@ -6,9 +6,12 @@ import com.STR.service.TaskService;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 // 任务相关的服务类
 @Service
@@ -68,6 +71,8 @@ public class TaskServiceImpl implements TaskService {
             Map<String,Object> map1 = new HashMap<>();
             map1.put("taskinstance_id",taskInstance.getTaskinstance_id());
             List<TaskSiteInstance> taskSiteInstances = taskSiteInstanceMapper.findByCondition(map1);
+            //为每个TaskInstance
+
             // 补全每个巡检点位实例的NormalInspection记录(可能没有)
             for (TaskSiteInstance taskSiteInstance : taskSiteInstances){
                 taskSiteInstance.setNormalInspection(normalInspectionMapper.findByTaskSiteInstanceID(taskSiteInstance.getTasksiteinstance_id())) ;
@@ -95,6 +100,16 @@ public class TaskServiceImpl implements TaskService {
         taskSiteInstanceMapper.update(taskSiteInstance);
         // 除去Redis中对应Taskinstance的相关缓存
         redisTemplate.opsForSet().remove(String.valueOf(taskSiteInstance.getTaskinstance_id()),String.valueOf(taskSiteInstance.getTasksiteinstance_id()));
+        // 如果对应Taskinstance已经为空 那么标记任务完成
+        Set<String> taskSiteInstanceIDSet = redisTemplate.opsForSet().members(String.valueOf(taskSiteInstance.getTaskinstance_id()));
+        if (taskSiteInstanceIDSet.isEmpty()){
+            TaskInstance taskInstance = TaskInstance.builder()
+                    .taskinstance_id(taskSiteInstance.getTaskinstance_id())
+                    .end_time(LocalDateTime.now())
+                    .state(1)
+                    .build();
+            taskInstanceMapper.update(taskInstance);
+        }
         return 0;
     }
 

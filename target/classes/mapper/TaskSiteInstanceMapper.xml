@@ -44,4 +44,8 @@
         WHERE DATE(check_time) > DATE(NOW() - INTERVAL #{interval} DAY)
     </select>
 
+    <delete id="deleteByTaskInstanceID" parameterType="int">
+        DELETE FROM tasksiteinstance WHERE taskinstance_id = #{taskinstance_id}
+    </delete>
+
 </mapper>

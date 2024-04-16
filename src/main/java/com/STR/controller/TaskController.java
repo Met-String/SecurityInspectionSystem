@@ -36,7 +36,7 @@ public class TaskController {
         return ResponseEntity.ok().body(new MessageResponse(0,"成功创建任务！"));
     }
 
-    // 激活/中止任务 不涉及对信息素矩阵的修改
+    // 虽然叫activate 但其实是激活/中止任务 不涉及对信息素矩阵的修改
     @PostMapping("/activate")
     public ResponseEntity<?> activateTask(@RequestBody Task task){
         taskService.activateTask(task);
@@ -44,6 +44,8 @@ public class TaskController {
             List<Task> taskList = new ArrayList<>();
             taskList.add(task);
             dailyTaskManager.executeTask(taskList);
+        } else if (task.getState() == 0) {
+            dailyTaskManager.undoTask(task);
         }
         if(task.getState() == 1){
             return ResponseEntity.ok().body(new MessageResponse(0,"任务已激活！"));
@@ -51,9 +53,6 @@ public class TaskController {
             return ResponseEntity.ok().body(new MessageResponse(0,"任务已中止！"));
         }
     }
-
-    // 立刻激活一次指定任务
-
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteTask(@RequestBody Task task){
@@ -79,7 +78,6 @@ public class TaskController {
         return ResponseEntity.ok().body(new MessageResponseBody(0,"成功获取所有任务！", taskList));
     }
 
-
     // 按照日期、用户名获取巡检任务实例
     @GetMapping("/taskinstance")
     public ResponseEntity<?> getTaskInstance(
@@ -92,5 +90,13 @@ public class TaskController {
         if (task_id != null) map.put("task_id", task_id);
         List<TaskInstance> taskInstance = taskService.findInstanceByCondition(map);
         return ResponseEntity.ok().body(new MessageResponseBody(0, "获取任务实例成功", taskInstance));
+    }
+
+    // 完成TaskSiteInstance的巡检任务 并提交NormalInspection信息
+    @PostMapping("/tasksiteinstance/finish")
+    public ResponseEntity<?> finishSiteTask(
+            @RequestBody TaskSiteInstance taskSiteInstance){
+        taskService.finishTaskSiteInstance(taskSiteInstance);
+        return ResponseEntity.ok().body(new MessageResponse(0,"本次点位任务完成！"));
     }
 }

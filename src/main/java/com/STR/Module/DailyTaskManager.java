@@ -136,13 +136,34 @@ public class DailyTaskManager {
         }
     }
 
+    // 对于指定的Task的今日任务进行撤销 可能是误激活 或当事人临时有事无法巡检
+    public void undoTask(Task task){
+        Map<String,Object> map = new HashMap<>();
+        map.put("task_id", task.getTask_id());
+        map.put("timestamp",LocalDate.now());
+        List<TaskInstance> taskInstanceList = taskInstanceMapper.findByCondition(map);
+        for(TaskInstance taskInstance : taskInstanceList){
+            // 删除所有对应的TaskSiteInstance
+            taskSiteInstanceMapper.deleteByTaskInstanceID(taskInstance.getTaskinstance_id());
+            // 清除该TaskInstance在Redis中的缓存信息 如果有的话
+            redisTemplate.opsForSet().remove("TodayTasks",String.valueOf(taskInstance.getTaskinstance_id()));
+            redisTemplate.delete(String.valueOf(taskInstance.getTaskinstance_id()));
+            // 删除该TaskInstance的数据库记录
+            taskInstanceMapper.deleteByID(taskInstance.getTaskinstance_id());
+        }
+    }
+
     // 对前一日的未完成任务进行审查 查找Redis中TodayTasks为KEY的List的遗留数据 对TaskInstance进行已超时标记 对TaskSiteInstance进行漏检标记
     public void checkYesterdayTask(){
         Set<String> yesterdayTasks = redisTemplate.opsForSet().members("TodayTasks");
         if (yesterdayTasks == null || yesterdayTasks.isEmpty()) return;
         for(String taskinstance_id : yesterdayTasks){
             Set<String> taskSiteInstanceIDSet = redisTemplate.opsForSet().members(taskinstance_id);
-            if (taskSiteInstanceIDSet == null)  continue;
+            // 如果是已完成任务 就直接删了
+            if (taskSiteInstanceIDSet == null || taskSiteInstanceIDSet.isEmpty()){
+                redisTemplate.delete("taskinstance_id");
+                continue;
+            }
             // 将未完成的TaskSiteInstance进行漏检标记State:5
             for(String tasksiteinstance_id : taskSiteInstanceIDSet){
                 Map<String,Object> map = new HashMap<>();

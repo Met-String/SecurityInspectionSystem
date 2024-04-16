@@ -12,4 +12,6 @@ public interface TaskInstanceMapper {
     int insertTaskInstance(TaskInstance taskInstance);
     int update(TaskInstance taskInstance);
     List<TaskInstance> findByCondition(Map<String,Object> map);
+
+    int deleteByID(int taskinstance_id);
 }
