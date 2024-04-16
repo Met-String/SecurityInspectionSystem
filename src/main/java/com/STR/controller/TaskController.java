@@ -100,6 +100,7 @@ public class TaskController {
         return ResponseEntity.ok().body(new MessageResponse(0,"本次点位任务完成！"));
     }
 
+    // 立刻结束今日全部任务 将所有未完成任务判定超时、清空缓存
     @GetMapping("/killer")
     public ResponseEntity<?> killallYesterdayTask(){
         dailyTaskManager.checkYesterdayTask();

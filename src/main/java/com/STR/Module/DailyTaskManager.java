@@ -1,10 +1,7 @@
 package com.STR.Module;
 
 import com.STR.entity.*;
-import com.STR.mapper.SiteMapper;
-import com.STR.mapper.TaskInstanceMapper;
-import com.STR.mapper.TaskMapper;
-import com.STR.mapper.TaskSiteInstanceMapper;
+import com.STR.mapper.*;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,13 +17,15 @@ public class DailyTaskManager {
     private final TaskMapper taskMapper;
     private final TaskInstanceMapper taskInstanceMapper;
     private final TaskSiteInstanceMapper taskSiteInstanceMapper;
+    private final NormalInspectionMapper normalInspectionMapper;
     private final StringRedisTemplate redisTemplate;
 
-    public DailyTaskManager(SiteMapper siteMapper, TaskMapper taskMapper, TaskInstanceMapper taskInstanceMapper, TaskSiteInstanceMapper taskSiteInstanceMapper, StringRedisTemplate redisTemplate) {
+    public DailyTaskManager(SiteMapper siteMapper, TaskMapper taskMapper, TaskInstanceMapper taskInstanceMapper, TaskSiteInstanceMapper taskSiteInstanceMapper, NormalInspectionMapper normalInspectionMapper, StringRedisTemplate redisTemplate) {
         this.siteMapper = siteMapper;
         this.taskMapper = taskMapper;
         this.taskInstanceMapper = taskInstanceMapper;
         this.taskSiteInstanceMapper = taskSiteInstanceMapper;
+        this.normalInspectionMapper = normalInspectionMapper;
         this.redisTemplate = redisTemplate;
     }
 
@@ -143,6 +142,15 @@ public class DailyTaskManager {
         map.put("timestamp",LocalDate.now());
         List<TaskInstance> taskInstanceList = taskInstanceMapper.findByCondition(map);
         for(TaskInstance taskInstance : taskInstanceList){
+
+            // 删除所有TaskSiteInstance 下属的 NormalInspection 当然 这意味着巡检到一半忽然撤销任务了 或者本来巡检完成了 撤销了
+            Map<String,Object> map1 = new HashMap<>();
+            map1.put("taskinstance_id",taskInstance.getTaskinstance_id());
+            List<TaskSiteInstance> taskSiteInstances = taskSiteInstanceMapper.findByCondition(map1);
+            for(TaskSiteInstance taskSiteInstance : taskSiteInstances){
+                normalInspectionMapper.deleteByTaskSiteInstanceID(taskSiteInstance.getTasksiteinstance_id());
+            }
+
             // 删除所有对应的TaskSiteInstance
             taskSiteInstanceMapper.deleteByTaskInstanceID(taskInstance.getTaskinstance_id());
             // 清除该TaskInstance在Redis中的缓存信息 如果有的话

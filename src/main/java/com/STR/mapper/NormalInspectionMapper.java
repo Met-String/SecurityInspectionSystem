@@ -7,4 +7,5 @@ import org.apache.ibatis.annotations.Mapper;
 public interface NormalInspectionMapper {
     int insertNormalInspection(NormalInspection normalInspection);
     NormalInspection findByTaskSiteInstanceID(int taskSiteInstance_id);
+    int deleteByTaskSiteInstanceID(int tasksiteinstance_id);
 }

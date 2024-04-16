@@ -14,4 +14,7 @@
         WHERE tasksiteinstance_id = #{tasksiteinstance_id}
     </select>
 
+    <delete id="deleteByTaskSiteInstanceID" parameterType="int">
+        DELETE FROM normalinspection WHERE tasksiteinstance_id = #{tasksiteinstance_id}
+    </delete>
 </mapper>
