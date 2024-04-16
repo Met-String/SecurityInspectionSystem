@@ -156,14 +156,25 @@ public class DailyTaskManager {
     // 对前一日的未完成任务进行审查 查找Redis中TodayTasks为KEY的List的遗留数据 对TaskInstance进行已超时标记 对TaskSiteInstance进行漏检标记
     public void checkYesterdayTask(){
         Set<String> yesterdayTasks = redisTemplate.opsForSet().members("TodayTasks");
+        System.out.println("yesterdayTasks" + yesterdayTasks);
         if (yesterdayTasks == null || yesterdayTasks.isEmpty()) return;
         for(String taskinstance_id : yesterdayTasks){
             Set<String> taskSiteInstanceIDSet = redisTemplate.opsForSet().members(taskinstance_id);
-            // 如果是已完成任务 就直接删了
+            System.out.println("taskinstance_id:" + taskinstance_id);
+            System.out.println("SiteInstanceIDSet:" + taskSiteInstanceIDSet);
+
+            // 如果是已完成任务 就直接删了 如果是远古遗留痕迹 也直接删了
             if (taskSiteInstanceIDSet == null || taskSiteInstanceIDSet.isEmpty()){
                 redisTemplate.delete("taskinstance_id");
                 continue;
             }
+            Map<String,Object> map2 = new HashMap<>();
+            map2.put("taskinstance_id",taskinstance_id);
+            if(taskInstanceMapper.findByCondition(map2).isEmpty()){
+                redisTemplate.delete("taskinstance_id");
+                continue;
+            }
+
             // 将未完成的TaskSiteInstance进行漏检标记State:5
             for(String tasksiteinstance_id : taskSiteInstanceIDSet){
                 Map<String,Object> map = new HashMap<>();

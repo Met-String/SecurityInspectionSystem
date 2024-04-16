@@ -99,4 +99,10 @@ public class TaskController {
         taskService.finishTaskSiteInstance(taskSiteInstance);
         return ResponseEntity.ok().body(new MessageResponse(0,"本次点位任务完成！"));
     }
+
+    @GetMapping("/killer")
+    public ResponseEntity<?> killallYesterdayTask(){
+        dailyTaskManager.checkYesterdayTask();
+        return ResponseEntity.ok().body(new MessageResponse(0,"die！"));
+    }
 }

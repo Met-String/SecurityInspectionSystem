@@ -1,12 +1,12 @@
 package com.STR.service.impl;
 
+import com.STR.Module.DailyTaskManager;
 import com.STR.entity.*;
 import com.STR.mapper.*;
 import com.STR.service.TaskService;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -22,13 +22,17 @@ public class TaskServiceImpl implements TaskService {
     private final TaskSiteInstanceMapper taskSiteInstanceMapper;
     private final NormalInspectionMapper normalInspectionMapper;
     private final StringRedisTemplate redisTemplate;
-    public TaskServiceImpl(TaskMapper taskMapper, TaskSiteMapper taskSiteMapper, TaskInstanceMapper taskInstanceMapper, TaskSiteInstanceMapper taskSiteInstanceMapper, NormalInspectionMapper normalInspectionMapper, NormalInspectionMapper normalInspectionMapper1, StringRedisTemplate redisTemplate) {
+    private final SiteMapper siteMapper;
+    private final DailyTaskManager dailyTaskManager;
+    public TaskServiceImpl(TaskMapper taskMapper, TaskSiteMapper taskSiteMapper, TaskInstanceMapper taskInstanceMapper, TaskSiteInstanceMapper taskSiteInstanceMapper, NormalInspectionMapper normalInspectionMapper, NormalInspectionMapper normalInspectionMapper1, StringRedisTemplate redisTemplate, SiteMapper siteMapper, DailyTaskManager dailyTaskManager) {
         this.taskMapper = taskMapper;
         this.taskSiteMapper = taskSiteMapper;
         this.taskInstanceMapper = taskInstanceMapper;
         this.taskSiteInstanceMapper = taskSiteInstanceMapper;
         this.normalInspectionMapper = normalInspectionMapper;
         this.redisTemplate = redisTemplate;
+        this.siteMapper = siteMapper;
+        this.dailyTaskManager = dailyTaskManager;
     }
 
     // 这里只添加新任务+点位池 后续的TaskInstance生成交给DailyTaskManager模块完成
@@ -86,10 +90,10 @@ public class TaskServiceImpl implements TaskService {
     // 【缺失工单相关逻辑】
     @Override
     public int finishTaskSiteInstance(TaskSiteInstance taskSiteInstance) {
+        // 不能重复完成的验证逻辑
         Map<String,Object> map = new HashMap<>();
         map.put("tasksiteinstance_id",taskSiteInstance.getTasksiteinstance_id());
         TaskSiteInstance MySiteInstance = taskSiteInstanceMapper.findByCondition(map).get(0);
-        // 不能重复完成
         if(MySiteInstance.getState() != 0){
             return 1;
         }
@@ -97,7 +101,16 @@ public class TaskServiceImpl implements TaskService {
         if(taskSiteInstance.getNormalInspection() != null){
             normalInspectionMapper.insertNormalInspection(taskSiteInstance.getNormalInspection());
         }
+
+        // 更新taskSiteInstance 和Site的CheckTime相关信息
         taskSiteInstanceMapper.update(taskSiteInstance);
+        Map<String,Object> map1 = new HashMap<>();
+        map1.put("site_id",taskSiteInstance.getSite_id());
+        Site site = siteMapper.selectByCondition(map1).get(0);
+        site.setLast_check_time(taskSiteInstance.getCheck_time());
+        // 计算并更新NextCheckDate
+        dailyTaskManager.Next_Check_Date(site);
+
         // 除去Redis中对应Taskinstance的相关缓存
         redisTemplate.opsForSet().remove(String.valueOf(taskSiteInstance.getTaskinstance_id()),String.valueOf(taskSiteInstance.getTasksiteinstance_id()));
         // 如果对应Taskinstance已经为空 那么标记任务完成
