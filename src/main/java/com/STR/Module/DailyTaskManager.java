@@ -50,6 +50,9 @@ public class DailyTaskManager {
             Map<String,Object> map = new HashMap<>();
             map.put("task_id",task.getTask_id());
             List<Site> sitePool = siteMapper.selectByCondition(map);
+
+            System.out.println("SitePool:" + sitePool.toString());
+
             List<Site> todaySites = new ArrayList<Site>();
             for (Site site : sitePool){
                 if(Objects.equals(site.getUsability(), "不可用")) continue;
@@ -67,6 +70,7 @@ public class DailyTaskManager {
                     }
                 }
             }
+            System.out.println("TodaySites:" + todaySites.toString());
             // 如果没有点位符合任务要求，那就算了
             if(todaySites.isEmpty()) return;
 
@@ -74,8 +78,9 @@ public class DailyTaskManager {
             List<ArrayList<Site>> sitesListCollection = new ArrayList<>();
             ArrayList<Site> siteList = null;
             while(true){
+                siteList = new ArrayList<>();
                 for(Site site : todaySites){
-                    siteList = new ArrayList<>();
+                    System.out.println("当前点位为:" + site.toString());
                     List<Integer> frequency = site.getFrequency();
                     //一个点位一天可能要求巡检多次 如果还有巡检次数 那么就加入当前的SitesList
                     if(frequency.get(2) > 0){
@@ -86,7 +91,7 @@ public class DailyTaskManager {
                 }
                 // 当todaySites中每个点位的频率都被耗尽 再也无法产出新的点位列表时 就停止
                 if (siteList.isEmpty()) break;
-
+                System.out.println("本次SiteList是:"+ siteList.toString());
                 sitesListCollection.add(siteList);
             }
 
@@ -122,7 +127,9 @@ public class DailyTaskManager {
                     redisTemplate.opsForSet().add(String.valueOf(taskInstance.getTaskinstance_id()), String.valueOf(taskSiteInstance.getTasksiteinstance_id()));
                 }
                 System.out.println("======================================================");
+                System.out.println("今天的任务实例有:");
                 System.out.println(redisTemplate.opsForSet().members("TodayTasks"));
+                System.out.println("此任务实例点位ID是:");
                 System.out.println(redisTemplate.opsForSet().members(String.valueOf(taskInstance.getTaskinstance_id())));
                 System.out.println("======================================================");
             }

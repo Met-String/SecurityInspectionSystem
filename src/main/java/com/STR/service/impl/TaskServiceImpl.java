@@ -43,6 +43,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public int deleteTask(Task task) {
+        taskSiteMapper.deleteByTaskID(task.getTask_id());
+        return taskMapper.deleteByTaskID(task.getTask_id());
+    }
+
+    @Override
     public List<Task> findByCondition(Map map) {
         List<Task> taskList = taskMapper.selectByCondition(map);
         for (Task task : taskList){
@@ -90,5 +96,11 @@ public class TaskServiceImpl implements TaskService {
         // 除去Redis中对应Taskinstance的相关缓存
         redisTemplate.opsForSet().remove(String.valueOf(taskSiteInstance.getTaskinstance_id()),String.valueOf(taskSiteInstance.getTasksiteinstance_id()));
         return 0;
+    }
+
+    // 激活任务 并不涉及复杂的信息素矩阵操作
+    @Override
+    public int activateTask(Task task) {
+        return taskMapper.update(task);
     }
 }

@@ -11,6 +11,8 @@ import java.util.Map;
 public interface TaskService {
     // 添加新任务
     void addNewTask(Task task);
+    // 移除任务
+    int deleteTask(Task Task);
 
     List<Task> findByCondition(Map map);
 
@@ -19,4 +21,6 @@ public interface TaskService {
 
     // 完成一个点位实例的巡检任务
     int finishTaskSiteInstance(TaskSiteInstance taskSiteInstance);
+    // 激活任务
+    int activateTask(Task task);
 }

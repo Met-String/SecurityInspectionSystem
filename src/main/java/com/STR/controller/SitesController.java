@@ -54,9 +54,13 @@ public class SitesController {
     // 条件查找点位
     @GetMapping("/")
     @ResponseBody
-    public ResponseEntity<?> getSites(){
+    public ResponseEntity<?> getSites(
+            @RequestParam(value = "notBeAssigned",required = false) Boolean notBeAssigned){
         Map<String,Object> map = new HashMap<>();
-        return ResponseEntity.ok().body(siteService.findSitesByCondition(map));
+        if (notBeAssigned != null){
+            map.put("notBeAssigned", true);
+        }
+        return ResponseEntity.ok().body(new MessageResponseBody(0,"检索点位成功！",siteService.findSitesByCondition(map)));
     }
 
     // 查找一个点位的所有历史巡检记录，也许是

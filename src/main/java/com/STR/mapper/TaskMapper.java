@@ -10,6 +10,7 @@ import java.util.Map;
 @Mapper
 public interface TaskMapper {
     int insertTask(Task task);
-
+    int deleteByTaskID(int task_id);
     List<Task> selectByCondition(Map<String,Object> map);
+    int update(Task task);
 }

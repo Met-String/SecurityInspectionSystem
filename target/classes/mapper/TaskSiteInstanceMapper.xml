@@ -1,0 +1,47 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.STR.mapper.TaskSiteInstanceMapper">
+    <insert id="insert" parameterType="com.STR.entity.TaskSiteInstance" useGeneratedKeys="true" keyProperty="tasksiteinstance_id">
+        INSERT INTO tasksiteinstance (taskinstance_id, site_id, state, user_id)
+        VALUES (#{taskinstance_id}, #{site_id}, #{state}, #{user_id})
+    </insert>
+
+    <!-- 对于一个点位巡检实例 只有CheckTime State是可能被更新的 -->
+    <update id="update" parameterType="com.STR.entity.TaskSiteInstance">
+        UPDATE tasksiteinstance
+        SET check_time = #{check_time},
+            state = #{state}
+        WHERE tasksiteinstance_id = #{tasksiteinstance_id}
+    </update>
+
+    <select id="findByCondition" parameterType="map" resultType="com.STR.entity.TaskSiteInstance">
+        SELECT tsi.*, s.name site_name, u.user_name user_name
+        FROM tasksiteinstance tsi
+        JOIN site s ON tsi.site_id = s.site_id
+        JOIN user u ON tsi.user_id = u.user_id
+        <where>
+            <if test="tasksiteinstance_id != null">
+                tasksiteinstance_id = #{tasksiteinstance_id}
+            </if>
+            <if test="taskinstance_id != null">
+                AND tsi.taskinstance_id = #{taskinstance_id}
+            </if>
+            <if test="site_id != null">
+                AND tsi.site_id = #{site_id}
+            </if>
+            <if test="user_id != null">
+                AND tsi.user_id = #{user_id}
+            </if>
+            <!-- 添加更多的<if>条件来检查其他可能的参数 -->
+        </where>
+    </select>
+
+    <!--  找到在过去的interval天内 有几个巡检天  -->
+    <select id="countTimesByInterval" parameterType="map" resultType="int">
+        SELECT COUNT(DISTINCT taskinstance_id) FROM tasksiteinstance
+        WHERE DATE(check_time) > DATE(NOW() - INTERVAL #{interval} DAY)
+    </select>
+
+</mapper>
