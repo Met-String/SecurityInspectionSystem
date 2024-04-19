@@ -4,14 +4,13 @@ import com.STR.Module.DailyTaskManager;
 import com.STR.entity.*;
 import com.STR.mapper.*;
 import com.STR.service.TaskService;
+import com.STR.util.ImageUploadUtil;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 // 任务相关的服务类
 @Service
@@ -24,7 +23,8 @@ public class TaskServiceImpl implements TaskService {
     private final StringRedisTemplate redisTemplate;
     private final SiteMapper siteMapper;
     private final DailyTaskManager dailyTaskManager;
-    public TaskServiceImpl(TaskMapper taskMapper, TaskSiteMapper taskSiteMapper, TaskInstanceMapper taskInstanceMapper, TaskSiteInstanceMapper taskSiteInstanceMapper, NormalInspectionMapper normalInspectionMapper, NormalInspectionMapper normalInspectionMapper1, StringRedisTemplate redisTemplate, SiteMapper siteMapper, DailyTaskManager dailyTaskManager) {
+    private final ImageUploadUtil imageUploadUtil;
+    public TaskServiceImpl(TaskMapper taskMapper, TaskSiteMapper taskSiteMapper, TaskInstanceMapper taskInstanceMapper, TaskSiteInstanceMapper taskSiteInstanceMapper, NormalInspectionMapper normalInspectionMapper, NormalInspectionMapper normalInspectionMapper1, StringRedisTemplate redisTemplate, SiteMapper siteMapper, DailyTaskManager dailyTaskManager, ImageUploadUtil imageUploadUtil) {
         this.taskMapper = taskMapper;
         this.taskSiteMapper = taskSiteMapper;
         this.taskInstanceMapper = taskInstanceMapper;
@@ -33,6 +33,7 @@ public class TaskServiceImpl implements TaskService {
         this.redisTemplate = redisTemplate;
         this.siteMapper = siteMapper;
         this.dailyTaskManager = dailyTaskManager;
+        this.imageUploadUtil = imageUploadUtil;
     }
 
     // 这里只添加新任务+点位池 后续的TaskInstance生成交给DailyTaskManager模块完成
@@ -53,6 +54,51 @@ public class TaskServiceImpl implements TaskService {
     public int deleteTask(Task task) {
         taskSiteMapper.deleteByTaskID(task.getTask_id());
         return taskMapper.deleteByTaskID(task.getTask_id());
+    }
+
+    // 更新一个Task的基本信息——以及最重要的:更新点位池
+    @Override
+    public int updateTask(Task task){
+        System.out.println(task.toString());
+
+        taskMapper.update(task);
+        Map<String,Object> map = new HashMap<>();
+        map.put("task_id",task.getTask_id());
+        Task oldTask = findByCondition(map).get(0);
+        Set<Integer> oldSitePool = oldTask.getSites();
+        Set<Integer> newSitePool = task.getSites();
+        // 新的点位池相比于旧的点位池 多了哪些点位？增加这些点位。
+        Set<Integer> addedSites = new HashSet<>(newSitePool);
+        addedSites.removeAll(oldSitePool);
+        for(int site_id : addedSites){
+            taskSiteMapper.insertTaskSite(TaskSite.builder()
+                    .site_id(site_id)
+                    .task_id(task.getTask_id())
+                    .build());
+        }
+        // 新的点位池相比于旧的点位池 少了哪些点位？移去这些点位。
+        Set<Integer> removedSites = new HashSet<>(oldSitePool);
+        removedSites.removeAll(newSitePool);
+        for(int site_id : removedSites){
+            taskSiteMapper.deleteBySiteID(site_id);
+        }
+        // 新的点位池相比于旧的点位池 相似度是百分之多少？—— 交集大小 / 并集大小
+        Set<Integer> intersection = new HashSet<>(oldSitePool);
+        intersection.retainAll(newSitePool);
+        Set<Integer> union = new HashSet<>(oldSitePool);
+        union.addAll(newSitePool);
+        float similarity = ((float) intersection.size() / union.size());
+
+        System.out.println("新增点位: " + addedSites.toString());
+        System.out.println("去除点位: " + removedSites.toString());
+        System.out.println("新旧点位池相似度: " + String.valueOf(similarity));
+        // 根据相似度百分比、减少点位、新增点位的信息来更新信息素矩阵
+        // ========================================================================
+
+        // Slot 插槽 此处放置和更新信息素矩阵相关的信息
+
+        // ========================================================================
+        return 1;
     }
 
     @Override
@@ -89,7 +135,7 @@ public class TaskServiceImpl implements TaskService {
     // 完成一个点位实例的巡检任务，其中点位实例必需要有TaskSiteInstanceID、CheckTime属性
     // 【缺失工单相关逻辑】
     @Override
-    public int finishTaskSiteInstance(TaskSiteInstance taskSiteInstance) {
+    public int finishTaskSiteInstance(TaskSiteInstance taskSiteInstance, MultipartFile img) {
         // 不能重复完成的验证逻辑
         Map<String,Object> map = new HashMap<>();
         map.put("tasksiteinstance_id",taskSiteInstance.getTasksiteinstance_id());
@@ -97,9 +143,20 @@ public class TaskServiceImpl implements TaskService {
         if(MySiteInstance.getState() != 0){
             return 1;
         }
+
+        //载入图片 如果有的话
+        String url = null;
+        if(img != null && !img.isEmpty()){
+            url = imageUploadUtil.imgUpload(img);
+            System.out.println(url);
+        }
+
         // 插入NormalInspection 有可能为空(跳检 工单等)
         if(taskSiteInstance.getNormalInspection() != null){
-            normalInspectionMapper.insertNormalInspection(taskSiteInstance.getNormalInspection());
+            NormalInspection normalInspection = taskSiteInstance.getNormalInspection();
+            normalInspection.setImage_url(url);
+            normalInspection.setTasksiteinstance_id(taskSiteInstance.getTasksiteinstance_id());
+            normalInspectionMapper.insertNormalInspection(normalInspection);
         }
 
         // 更新taskSiteInstance 和Site的CheckTime相关信息

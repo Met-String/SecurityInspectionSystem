@@ -13,6 +13,12 @@ const siteManager = {
     deleteSites : (sitesIdList) => {
         return axios.delete(domain + 'sites/delete', { data: sitesIdList })
     },
+    gethistory : (site_id) => {
+        const params = new URLSearchParams();
+        if(site_id) params.append('site_id', site_id);
+        return axios.get(domain + 'sites/history', {params});
+
+    },
     editSite : (site) => {
         return axios.post(domain + 'sites/edit', site)
     }
@@ -52,6 +58,9 @@ const taskManager = {
     deleteTask : (task) => {
         return axios.delete(domain + 'task/delete', { data: task })
     },
+    updateTask : (task) => {
+        return axios.post(domain + 'task/update', task)
+    },
     getTaskInstance : ({timestamp, user_id, task_id}) => {
         const params = new URLSearchParams();
         if(timestamp) params.append('timestamp',timestamp);
@@ -61,8 +70,8 @@ const taskManager = {
     }
 }
 
-const domain = 'http://localhost:8080/'
-
+// const domain = 'http://localhost:8080/'
+const domain = 'http://47.103.212.121:8080/'
 export {
     siteManager,
     userManager,

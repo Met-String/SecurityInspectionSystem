@@ -19,24 +19,28 @@ public class DailyTaskManager {
     private final TaskSiteInstanceMapper taskSiteInstanceMapper;
     private final NormalInspectionMapper normalInspectionMapper;
     private final StringRedisTemplate redisTemplate;
+    private final AntColonyAlgorithm antColonyAlgorithm;
 
-    public DailyTaskManager(SiteMapper siteMapper, TaskMapper taskMapper, TaskInstanceMapper taskInstanceMapper, TaskSiteInstanceMapper taskSiteInstanceMapper, NormalInspectionMapper normalInspectionMapper, StringRedisTemplate redisTemplate) {
+    public DailyTaskManager(SiteMapper siteMapper, TaskMapper taskMapper, TaskInstanceMapper taskInstanceMapper, TaskSiteInstanceMapper taskSiteInstanceMapper, NormalInspectionMapper normalInspectionMapper, StringRedisTemplate redisTemplate, AntColonyAlgorithm antColonyAlgorithm) {
         this.siteMapper = siteMapper;
         this.taskMapper = taskMapper;
         this.taskInstanceMapper = taskInstanceMapper;
         this.taskSiteInstanceMapper = taskSiteInstanceMapper;
         this.normalInspectionMapper = normalInspectionMapper;
         this.redisTemplate = redisTemplate;
+        this.antColonyAlgorithm = antColonyAlgorithm;
     }
 
     // 每日进行全局任务下发
     @Scheduled(cron = "0 10 0 * * ?")
     public void initTodayTask(){
+        System.out.println("开始初始化今日任务");
         // 处理所有昨日任务
         checkYesterdayTask();
         // 找到所有任务
         List<Task> tasks = taskMapper.selectByCondition(new HashMap<>());
         executeTask(tasks);
+        System.out.println("本日任务初始化完成");
     }
 
     // 根据传入Task的点位池生成对应的本日TaskInstance与TaskSiteInstance 并将关键信息传入Redis缓存
@@ -97,7 +101,9 @@ public class DailyTaskManager {
             // 针对每个sitesListCollection 中的每个 siteList 组装 TaskInstance TaskSiteInstance
             for(List<Site> oneSiteList : sitesListCollection){
                 // 【调用蚁群优化算法 将oneSiteList中的点位进行排序处理 生成新的排好序的oneSiteList】
-
+                System.out.println("排序前:" + oneSiteList.toString());
+                oneSiteList = antColonyAlgorithm.run(oneSiteList);
+                System.out.println("排序后:" + oneSiteList.toString());
 
                 // 组装TaskInstance 存入数据库 并获得TaskInstance_id 作为生成TaskSiteInstance的凭据
                 TaskInstance taskInstance = TaskInstance.builder()
@@ -189,6 +195,7 @@ public class DailyTaskManager {
                 map.put("tasksiteinstance_id",Integer.parseInt(tasksiteinstance_id));
                 TaskSiteInstance taskSiteInstance = taskSiteInstanceMapper.findByCondition(map).get(0);
                 taskSiteInstance.setState(5);
+                taskSiteInstance.setCheck_time(LocalDateTime.now().minusHours(1));
                 taskSiteInstanceMapper.update(taskSiteInstance);
             }
             // 将对应的taskInstance设置为超时State:2
@@ -201,7 +208,10 @@ public class DailyTaskManager {
             redisTemplate.delete(taskinstance_id);
         }
         // 完成所有检查工作后 清除掉上一日的缓存
-        redisTemplate.delete("TodayTasks");
+        Set<String> keys = redisTemplate.keys("*");
+        for (String key : keys){
+            redisTemplate.delete(key);
+        }
     }
 
     // 根据传入的点位的Last_Check_Time和Frequency信息 计算设置Next_Check_Time

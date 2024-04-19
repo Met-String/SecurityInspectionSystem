@@ -24,6 +24,10 @@ public class TaskSiteInstance {
     int user_id;
 
     // 数据库中不存在这一项
+    double longitude;
+    // 数据库中不存在这一项
+    double latitude;
+    // 数据库中不存在这一项
     String user_name;
     // 数据库中不存在这一项
     String site_name;

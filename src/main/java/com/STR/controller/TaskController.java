@@ -9,7 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,9 +30,21 @@ public class TaskController {
     // 创建新任务，包含一系列的TaskSite任务点
     @PostMapping("/add")
     public ResponseEntity<?> createTask(@RequestBody Task task){
-        System.out.println(task.toString());
         taskService.addNewTask(task);
         return ResponseEntity.ok().body(new MessageResponse(0,"成功创建任务！"));
+    }
+
+    @GetMapping("/testhaha")
+    public ResponseEntity<?> test(){
+        System.out.println("测试aaaa！");
+        return ResponseEntity.ok().body(new MessageResponse(0,"Helloooo"));
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<?> updateTask(@RequestBody Task task){
+        System.out.println( "接收到的Task是:" + task.toString());
+        taskService.updateTask(task);
+        return ResponseEntity.ok().body(new MessageResponse(0,"任务已更新"));
     }
 
     // 虽然叫activate 但其实是激活/中止任务 不涉及对信息素矩阵的修改
@@ -78,7 +89,7 @@ public class TaskController {
         return ResponseEntity.ok().body(new MessageResponseBody(0,"成功获取所有任务！", taskList));
     }
 
-    // 按照日期、用户名获取巡检任务实例
+    // 按照条件获取巡检任务实例
     @GetMapping("/taskinstance")
     public ResponseEntity<?> getTaskInstance(
             @RequestParam(required = false) LocalDate timestamp,
@@ -90,14 +101,6 @@ public class TaskController {
         if (task_id != null) map.put("task_id", task_id);
         List<TaskInstance> taskInstance = taskService.findInstanceByCondition(map);
         return ResponseEntity.ok().body(new MessageResponseBody(0, "获取任务实例成功", taskInstance));
-    }
-
-    // 完成TaskSiteInstance的巡检任务 并提交NormalInspection信息
-    @PostMapping("/tasksiteinstance/finish")
-    public ResponseEntity<?> finishSiteTask(
-            @RequestBody TaskSiteInstance taskSiteInstance){
-        taskService.finishTaskSiteInstance(taskSiteInstance);
-        return ResponseEntity.ok().body(new MessageResponse(0,"本次点位任务完成！"));
     }
 
     // 立刻结束今日全部任务 将所有未完成任务判定超时、清空缓存

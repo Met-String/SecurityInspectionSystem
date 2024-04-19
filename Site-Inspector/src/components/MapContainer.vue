@@ -7,6 +7,13 @@ window._AMapSecurityConfig = {
 const emit = defineEmits(['mapClicked'])
 let map = null;
 const placeSearch = ref(null);
+let createMarkerInternal = (lnglat) => {
+  console.error("地图尚未初始化，无法创建标记。");
+}
+let createPathInternal = (tasksiteinstances) => {
+  console.error("地图尚未初始化，无法创建标记。");
+};
+let clearAllMarker = null;
 onMounted(() => {
   AMapLoader.load({
     key: "59b3a0876c9217277e0767b51b30a53e", // 申请好的Web端开发者Key，首次调用 load 时必填
@@ -31,7 +38,7 @@ onMounted(() => {
           position: [117.141347, 39.060139],
           offset: new AMap.Pixel(-14, -30), //偏移量
           icon : icon,
-          title: "NewSite"
+          title: "NewSitesss"
         });
 
         // 添加点击事件监听器
@@ -54,16 +61,86 @@ onMounted(() => {
           panel: false, //结果列表将在此容器中进行展示。
           autoFitView: true, //是否自动调整地图视野使绘制的 Marker 点都处于视口的可见范围
         });
+
+        const ico2n = new AMap.Icon({
+          size: new AMap.Size(30, 32), //图标尺寸
+          image: "src/assets/MapMarkerGreen.png", //Icon 的图像
+          imageSize: new AMap.Size(30, 32), //根据所设置的大小拉伸或压缩图片
+        });
+
+        // 【生成标记相关】
+        //  创建labelMarker图层
+        const labelsLayer = new AMap.LabelsLayer({
+          zooms: [3, 20],
+          zIndex: 1000,
+          collision: false, //该层内标注是否避让
+          allowCollision: false, //不同标注层之间是否避让  
+        });
+        map.add(labelsLayer);
+        createMarkerInternal = (lnglat, SiteName) =>  {
+          const marker = new AMap.LabelMarker({
+            position: lnglat,
+            text:{
+              content : SiteName
+            },
+            icon : {
+              type: "image",
+              image: "src/assets/MapMarkerRed.png", //Icon 的图像
+              size: [15, 25], //图标尺寸
+            },
+            Opacity:0.6
+          });
+          console.log('锁定坐标：'+ lnglat + SiteName)
+          // map.add(marker);
+          labelsLayer.add(marker);
+        };
+        
+        // 清理所有标记
+        clearAllMarker = () => {
+          map.clearMap()
+        }
+
+        // 【生成折线相关】
+        // 配置折线路径
+        
+        createPathInternal = (tasksiteinstances) => {
+          var path = [new AMap.LngLat(117.145942, 39.057391)]; // 天津理工大学基建处坐标
+          createMarkerInternal([117.145942, 39.057391],"基建处") // 标记基建处位置
+          tasksiteinstances.forEach(tasksiteinstance => {
+            path.push(new AMap.LngLat(tasksiteinstance.longitude, tasksiteinstance.latitude))
+          })
+          //创建 Polyline 实例
+          var polyline = new AMap.Polyline({
+            path: path,
+            strokeWeight: 2, //线条宽度
+            strokeColor: "red", //线条颜色
+            lineJoin: "round", //折线拐点连接处样式
+          });
+          map.add(polyline);
+        }
     })
     .catch((e) => {
       console.log(e);
     });
+});
+// 创建标记：对外调用
+const createMarker = (lnglat, siteName) =>{
+  createMarkerInternal(lnglat, siteName)
+}
+// 创建路径：对外调用
+const createPath = (tasksiteinstances) => {
+  createPathInternal(tasksiteinstances)
+}
+defineExpose({
+  createMarker,
+  createPath
 });
 
 onUnmounted(() => {
   map?.destroy();
 });
 
+// 【地图控件相关】
 const searchKeyword = ref('');
 const onSearch = () => {
   if (searchKeyword.value) {
@@ -71,19 +148,25 @@ const onSearch = () => {
     placeSearch.value.search(searchKeyword.value);
   }
 };
-
 const clearMarkers = () => {
-  if (placeSearch.value) {
-    placeSearch.value.clear();
-  }
+  clearAllMarker()
 };
+
 </script>
 
 <template>
-  <input v-model="searchKeyword" type="text" placeholder="请输入搜索关键词">
-  <button @click="onSearch">搜索</button>
-  <button @click="clearMarkers">清理标记</button>
-  <div id="container"></div>
+  <el-row :gutter = "10" style="margin: 5px 0; border: 1px solid #cdcdcd;">
+    <el-col :span="24" style="margin: 5px 0">
+      <el-input v-model="searchKeyword" type="text" placeholder="请输入地点" style="width: 240px"/>
+      <el-button @click="onSearch" style="margin: 0 5px;">搜索</el-button>
+      <el-button @click="clearMarkers" style="margin: 0;">清理标记</el-button>
+    </el-col>
+  </el-row>
+  <el-row :gutter = "0" style="margin: 5px 0; border: 1px solid #cdcdcd;">
+    <el-col :span="24" style="margin: 0">
+      <div id="container" style="height:600px"></div>
+    </el-col>
+  </el-row>
 </template>
 
 <style scoped>

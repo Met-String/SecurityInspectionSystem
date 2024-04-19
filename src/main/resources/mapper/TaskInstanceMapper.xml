@@ -32,6 +32,7 @@
             </if>
             <!-- 添加更多的<if>条件来检查其他可能的参数 -->
         </where>
+            ORDER BY ti.start_time DESC
     </select>
     
     <delete id="deleteByID" parameterType="int">

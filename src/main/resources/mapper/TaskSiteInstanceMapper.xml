@@ -17,7 +17,7 @@
     </update>
 
     <select id="findByCondition" parameterType="map" resultType="com.STR.entity.TaskSiteInstance">
-        SELECT tsi.*, s.name site_name, u.user_name user_name
+        SELECT tsi.*, s.name site_name, s.longitude longitude, s.latitude latitude, u.user_name user_name
         FROM tasksiteinstance tsi
         JOIN site s ON tsi.site_id = s.site_id
         JOIN user u ON tsi.user_id = u.user_id
@@ -36,6 +36,7 @@
             </if>
             <!-- 添加更多的<if>条件来检查其他可能的参数 -->
         </where>
+        ORDER BY tsi.check_time DESC
     </select>
 
     <!--  找到在过去的interval天内 有几个巡检天  -->

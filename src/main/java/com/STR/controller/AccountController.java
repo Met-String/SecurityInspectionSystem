@@ -2,7 +2,9 @@ package com.STR.controller;
 
 
 import com.STR.entity.MessageResponse;
+import com.STR.entity.MessageResponseBody;
 import com.STR.entity.User;
+import com.STR.mapper.UserMapper;
 import com.STR.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,12 @@ public class AccountController {
 
     @Autowired
     private PasswordEncoder encoder;
+
+    private final UserMapper userMapper;
+
+    public AccountController(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
 
 // 用户登录，接受账号、密码、验证码。返回
 
@@ -53,13 +61,14 @@ public class AccountController {
     public ResponseEntity<?> authenticateUser(@RequestBody User user) {
         // 检查电话号是否”无效”
         if (userService.unavailByPhoneNumber(user.getPhoneNumber())) {
-            return ResponseEntity.badRequest().body(new MessageResponse(-1, "错误: 请正确输入电话号！"));
+            return ResponseEntity.badRequest().body(new MessageResponseBody(-1, "错误: 请正确输入电话号！",null));
         }
 
         if (userService.authenticateUser(user)) {
-            return ResponseEntity.ok(new MessageResponse(0, "登录成功!"));
+            User user1 = userMapper.findUserByPhoneNumber(user.getPhoneNumber());
+            return ResponseEntity.ok(new MessageResponseBody(0, "登录成功!", user1));
         } else {
-            return ResponseEntity.badRequest().body(new MessageResponse(-1, "电话号或密码错误！"));
+            return ResponseEntity.badRequest().body(new MessageResponseBody(-1, "电话号或密码错误！", null));
         }
     }
 }

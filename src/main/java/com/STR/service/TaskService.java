@@ -4,6 +4,7 @@ import com.STR.entity.NormalInspection;
 import com.STR.entity.Task;
 import com.STR.entity.TaskInstance;
 import com.STR.entity.TaskSiteInstance;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,9 @@ public interface TaskService {
     // 添加新任务
     void addNewTask(Task task);
     // 移除任务
-    int deleteTask(Task Task);
+    int deleteTask(Task task);
+
+    int updateTask(Task task);
 
     List<Task> findByCondition(Map map);
 
@@ -20,7 +23,7 @@ public interface TaskService {
     List<TaskInstance> findInstanceByCondition(Map<String,Object> map);
 
     // 完成一个点位实例的巡检任务
-    int finishTaskSiteInstance(TaskSiteInstance taskSiteInstance);
+    int finishTaskSiteInstance(TaskSiteInstance taskSiteInstance, MultipartFile img);
     // 激活任务
     int activateTask(Task task);
 }

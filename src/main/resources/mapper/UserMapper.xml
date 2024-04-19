@@ -12,7 +12,7 @@
 
     <select id="findAllUsers" resultMap="UserResultMap" resultType="com.STR.entity.User">
         SELECT user_id, user_name, user_phonenumber, position, image_url, department
-        FROM User
+        FROM user
     </select>
 
     <select id="findUserByPhoneNumber" resultMap="UserResultMap">

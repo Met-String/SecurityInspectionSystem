@@ -14,7 +14,12 @@
         SELECT t.*, u.user_name
         FROM task t
         JOIN user u ON t.user_id = u.user_id
-        WHERE t.is_deleted != 1
+        <where>
+                t.is_deleted != 1
+            <if test="task_id != null">
+                AND t.task_id = #{task_id}
+            </if>
+        </where>
     </select>
 
     <!--  删除 但是软删除  -->
